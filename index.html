@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<script>if(!/\/$/.test(location.pathname)&&!/\.html$/.test(location.pathname))location.replace(location.pathname+"/"+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#E9EFF5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1528" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Oblò">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="description" content="Smista il bucato nelle ceste giuste, scopri dosi, gradi e giri, e capisci la chimica e la fisica di ogni lavaggio.">
+<title>Oblò</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <div>
+        <div class="brand-name">Oblò</div>
+        <div class="brand-sub" id="viewSub">La scuola del bucato</div>
+      </div>
+    </div>
+    <button class="score" id="scoreBtn" type="button" data-act="go" data-view="lab" aria-label="Box scoperti"></button>
+  </header>
+
+  <main id="v-cesto" class="view" aria-label="Cesto"></main>
+  <main id="v-dispensa" class="view" aria-label="Dispensa" hidden></main>
+  <main id="v-lavatrice" class="view" aria-label="Lavatrice" hidden></main>
+  <main id="v-lab" class="view" aria-label="Laboratorio" hidden></main>
+</div>
+
+<nav class="tabs" aria-label="Sezioni">
+  <button type="button" data-act="go" data-view="cesto" aria-current="page">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16l-1.6 10.2a2 2 0 0 1-2 1.8H7.6a2 2 0 0 1-2-1.8L4 9Z"/><path d="M8 9 10.5 3.5M16 9l-2.5-5.5M3 9h18"/><path d="M9 13v4M12 13v4M15 13v4"/></svg>
+    <span>Cesto</span>
+  </button>
+  <button type="button" data-act="go" data-view="dispensa">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v3l1.5 2.2A3 3 0 0 1 17 9.9V19a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9.9a3 3 0 0 1 .5-1.7L9 6V3Z"/><path d="M7 12h10M9 6h6"/></svg>
+    <span>Dispensa</span>
+  </button>
+  <button type="button" data-act="go" data-view="lavatrice">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2.5" width="16" height="19" rx="2.5"/><path d="M4 7h16"/><circle cx="12" cy="14" r="4.5"/><path d="M9.6 15.2c1.2-.9 2.4.9 4.8 0"/><circle cx="7" cy="4.8" r=".6"/></svg>
+    <span>Lavatrice</span>
+  </button>
+  <button type="button" data-act="go" data-view="lab">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3h5M10 3v5.5L5 17.8A2.2 2.2 0 0 0 7 21h10a2.2 2.2 0 0 0 2-3.2L14 8.5V3"/><path d="M7.2 14h9.6"/><circle cx="11" cy="17" r=".7"/><circle cx="14" cy="18.2" r=".5"/></svg>
+    <span>Laboratorio</span>
+  </button>
+</nav>
+
+<div class="sheet-wrap" id="sheetWrap" hidden>
+  <div class="sheet-backdrop" data-act="close"></div>
+  <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" tabindex="-1"></section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="data.js"></script>
+<script src="scienza.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
