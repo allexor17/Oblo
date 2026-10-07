@@ -439,6 +439,12 @@ function renderDispensa() {
       `<button class="chip" type="button" data-act="own" data-id="${id}" aria-pressed="${owned(S.pantry, id)}"><span class="em" aria-hidden="true">${p.e}</span>${p.name}</button>`).join("")}</div>`;
   }
   h += `</section>`;
+  h += `<section class="panel stack">
+    <h3>Backup</h3>
+    <p class="small muted">I dati di Oblò (cesto, dispensa, impostazioni, box scoperti) restano solo su questo telefono. Con un backup li porti su un altro telefono o su un nuovo indirizzo dell'app.</p>
+    <div class="row"><button class="btn ghost sm" type="button" data-act="export">Esporta backup</button>
+    <label class="btn ghost sm" for="importOblo">Importa backup</label><input type="file" id="importOblo" accept="application/json,.json" hidden></div>
+  </section>`;
   $("#v-dispensa").innerHTML = h;
 }
 
@@ -996,6 +1002,7 @@ document.addEventListener("click", e => {
     case "own": S.pantry[id] = { ...(S.pantry[id] || {}), have: !owned(S.pantry, id) }; save(); render(); if (owned(S.pantry, id)) toast(`${PRODUCTS[id].name} in dispensa.`); break;
     case "own-s": S.pantry[id] = { ...(S.pantry[id] || {}), have: true }; save(); openStain(a.dataset.s); break;
     case "unown": S.pantry[id] = { ...(S.pantry[id] || {}), have: false }; save(); render(); break;
+    case "export": exportBackup(); break;
     case "kit": STARTER_KIT.forEach(k => { S.pantry[k] = { ...(S.pantry[k] || {}), have: true }; }); save(); render(); toast("Kit essenziale in dispensa."); break;
     // lavatrice
     case "pick": {
@@ -1021,8 +1028,35 @@ document.addEventListener("click", e => {
     }
   }
 });
+async function exportBackup() {
+  const data = JSON.stringify({ app: "oblo", version: 1, saved: new Date().toISOString(), state: JSON.parse(JSON.stringify(S, (k, v) => (k === "_b" || k === "_r") ? undefined : v)) });
+  const name = `oblo-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  const blob = new Blob([data], { type: "application/json" });
+  try {
+    const file = new File([blob], name, { type: "application/json" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: "Backup Oblò" }); return; }
+  } catch (e) { if (e && e.name === "AbortError") return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function importBackup(file) {
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const o = JSON.parse(r.result);
+      const st = o && o.app === "oblo" ? o.state : o;
+      if (!st || typeof st !== "object" || !Array.isArray(st.items)) throw new Error("formato");
+      if ((S.items.length || Object.keys(S.pantry).length) && !confirm("Sostituire i dati attuali con quelli del backup?")) return;
+      S = { ...clone(DEF), ...st, settings: { ...DEF.settings, ...(st.settings || {}) }, stats: { ...DEF.stats, ...(st.stats || {}) } };
+      save(); render();
+      toast(`Backup importato: ${qtyOf(S.items)} capi nel cesto, ${Object.keys(S.pantry).filter(k => owned(S.pantry, k)).length} prodotti in dispensa.`);
+    } catch (e) { toast("Questo file non è un backup di Oblò."); }
+  };
+  r.readAsText(file);
+}
 document.addEventListener("change", e => {
   const el = e.target;
+  if (el.id === "importOblo") { if (el.files[0]) importBackup(el.files[0]); el.value = ""; return; }
   const act = el.dataset.act, inp = el.dataset.inp;
   if (act === "quiz") { S.settings.quiz = el.checked; save(); render(); return; }
   if (act === "eco") { S.settings.eco = el.checked; save(); return; }
