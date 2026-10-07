@@ -36,6 +36,7 @@
   <main id="v-cesto" class="view" aria-label="Cesto"></main>
   <main id="v-dispensa" class="view" aria-label="Dispensa" hidden></main>
   <main id="v-lavatrice" class="view" aria-label="Lavatrice" hidden></main>
+  <main id="v-mano" class="view" aria-label="Bacinella" hidden></main>
   <main id="v-lab" class="view" aria-label="Laboratorio" hidden></main>
 </div>
 
@@ -52,6 +53,10 @@
     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2.5" width="16" height="19" rx="2.5"/><path d="M4 7h16"/><circle cx="12" cy="14" r="4.5"/><path d="M9.6 15.2c1.2-.9 2.4.9 4.8 0"/><circle cx="7" cy="4.8" r=".6"/></svg>
     <span>Lavatrice</span>
   </button>
+  <button type="button" data-act="go" data-view="mano">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 11h19l-1.8 6.2A3 3 0 0 1 16.8 19.5H7.2a3 3 0 0 1-2.9-2.3L2.5 11Z"/><path d="M5 14c2.2 1.2 4.4-1.2 7 0s4.8 1.2 7 0"/><circle cx="9" cy="6.5" r="1.4"/><circle cx="13.5" cy="4.5" r="1"/><circle cx="15.5" cy="8" r="1.7"/></svg>
+    <span>Bacinella</span>
+  </button>
   <button type="button" data-act="go" data-view="lab">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3h5M10 3v5.5L5 17.8A2.2 2.2 0 0 0 7 21h10a2.2 2.2 0 0 0 2-3.2L14 8.5V3"/><path d="M7.2 14h9.6"/><circle cx="11" cy="17" r=".7"/><circle cx="14" cy="18.2" r=".5"/></svg>
     <span>Laboratorio</span>
@@ -67,6 +72,7 @@
 <script src="data.js"></script>
 <script src="scienza.js"></script>
 <script src="engine.js"></script>
+<script src="mano.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

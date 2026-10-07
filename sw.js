@@ -1,6 +1,6 @@
 // Oblò · funzionamento offline. Cambia VERSION a ogni aggiornamento.
-const VERSION = "oblo-v4";
-const CORE = ["./", "./index.html", "./style.css", "./data.js", "./scienza.js", "./engine.js", "./app.js", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
+const VERSION = "oblo-v5";
+const CORE = ["./", "./index.html", "./style.css", "./data.js", "./scienza.js", "./engine.js", "./mano.js", "./app.js", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));

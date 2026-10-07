@@ -76,6 +76,7 @@ function sortItem(it) {
   const out = (basket, why, cards) => ({ basket, why, notes: itemNotes(it, basket), cards: cards || BASKET_CARDS[basket] || [] });
 
   if (it.label === "no") return out("nolav", "Sull'etichetta c'è la vaschetta barrata: niente acqua. Il tessuto, le imbottiture o le finiture non lo reggerebbero. Cerca il cerchio sull'etichetta: ti dice quale pulizia professionale chiedere in tintoria.");
+  if (it.fiber === "pelle" && it.g === "scarpe") return out("nolav", "Le scarpe di pelle non vanno in acqua: perderebbero gli oli che le tengono morbide e asciugando si crepano. Si puliscono a mano, con spazzola, panno appena umido e crema: trovi la guida nella Bacinella.", ["restringimento"]);
   if (it.fiber === "pelle") return out("nolav", "La pelle in acqua perde gli oli che la tengono morbida: asciugando si irrigidisce, si crepa e si restringe. Va in una tintoria che tratta la pelle.");
 
   if (it.fiber === "lana" || it.fiber === "cashmere")
@@ -89,8 +90,10 @@ function sortItem(it) {
   if (it.fiber === "piuma")
     return out("piumini", "La piuma ha bisogno di spazio per gonfiarsi, di tanti risciacqui e di un'asciugatura lunga: un piumino alla volta, con detersivo neutro e senza ammorbidente.");
 
+  if (it.g === "zaino")
+    return out("pesante", "Lo zaino ha imbottiture, schienale e spesso un rivestimento impermeabile che in lavatrice si deformano e si sfaldano. Meglio a mano, a zone, con spugna e spazzolino: la guida è nella Bacinella. Solo se l'etichetta lo permette, in lavatrice da solo, in un sacco, a 30°C.", ["mano_o_lavatrice", "dose"]);
   if (has(it, "aparte"))
-    return out("pesante", "Le scarpe sono pesanti e rigide: battono contro il cestello e strapazzano gli altri capi. Da sole, in un sacchetto, a 30°C, con un paio di asciugamani vecchi per attutire. Togli prima lacci e solette.");
+    return out("pesante", "Le scarpe sono pesanti e rigide: battono contro il cestello e strapazzano gli altri capi. In lavatrice vanno da sole, in un sacchetto, a 30°C, con un paio di asciugamani vecchi per attutire e senza lacci né solette. Più ecologico e più delicato: a mano con spazzola e poca acqua, guida nella Bacinella.", ["spugne", "mano_o_lavatrice"]);
   if (it.flags.pesante)
     return out("pesante", "Terra, fango e grasso si staccano in acqua, si ridepositano sugli altri capi e consumano gran parte del detersivo. Spazzola via lo sporco secco e lava a parte.");
   if (it.flags.peli)

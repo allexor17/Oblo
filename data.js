@@ -57,7 +57,8 @@ const GARMENTS = {
   guanti:      { name: "Guanti di lana",            e: "🧤", fiber: "lana",       w: 60,   tags: [] },
   microfibra:  { name: "Panno in microfibra",       e: "🧽", fiber: "poliestere", w: 40,   tags: ["attira", "noAmm"] },
   tenda:       { name: "Tenda",                     e: "🪟", fiber: "poliestere", w: 1200, tags: [] },
-  scarpe:      { name: "Scarpe da ginnastica",      e: "👟", fiber: "misto",      w: 700,  tags: ["aparte"] }
+  scarpe:      { name: "Scarpe",                    e: "👟", fiber: "misto",      w: 700,  tags: ["aparte"] },
+  zaino:       { name: "Zaino o borsa di tela",     e: "🎒", fiber: "poliestere", w: 600,  tags: ["aparte"] }
 };
 
 // group: bianco · chiaro · colorato · scuro    hot: tende a stingere
@@ -137,9 +138,18 @@ const PRODUCTS = {
   // accessori
   retina:    { name: "Sacchetti a rete",            e: "🕸️", cat: "Accessori", unit: "", dose: 0, chem: "Riducono l'attrito e impediscono ai ferretti e ai gancetti di agganciarsi.", good: "Reggiseni, collant, calzini, delicati", bad: "" },
   filtro:    { name: "Sacchetto anti-microfibre",   e: "🎒", cat: "Accessori", unit: "", dose: 0, chem: "Tessuto a maglia fittissima che trattiene le fibre rilasciate dai sintetici.", good: "Sintetici e pile", bad: "" },
-  palline:   { name: "Palline per asciugatrice",    e: "🎾", cat: "Accessori", unit: "", dose: 0, chem: "Battono i capi durante l'asciugatura: aprono i grumi e fanno circolare l'aria.", good: "Piumini, spugna", bad: "" }
+  palline:   { name: "Palline per asciugatrice",    e: "🎾", cat: "Accessori", unit: "", dose: 0, chem: "Battono i capi durante l'asciugatura: aprono i grumi e fanno circolare l'aria.", good: "Piumini, spugna", bad: "" },
+  // bacinella e mani
+  guanti:    { name: "Guanti in nitrile riutilizzabili", e: "🧤", cat: "Bacinella e mani", unit: "", dose: 0, chem: "Una barriera tra la pelle e tensioattivi, basi e ossidanti. Il nitrile non contiene lattice e resiste bene a grassi e soluzioni alcaline.", good: "Acqua calda, percarbonato, ammolli lunghi", bad: "" },
+  pinze:     { name: "Pinze da cucina o mollette",  e: "🥢", cat: "Bacinella e mani", unit: "", dose: 0, chem: "Per pescare i capi dall'ammollo senza immergere le mani.", good: "Ammolli", bad: "" },
+  spazzolino:{ name: "Spazzolino da denti vecchio", e: "🪥", cat: "Bacinella e mani", unit: "", dose: 0, chem: "Setole morbide e testa piccola: lavora la macchia al posto delle dita, senza consumare il tessuto.", good: "Macchie, cuciture, tomaie", bad: "" },
+  spazzola:  { name: "Spazzola a setole dure",      e: "🧹", cat: "Bacinella e mani", unit: "", dose: 0, chem: "Per fango secco, suole e tela robusta.", good: "Scarpe, zaini, tappetini", bad: "Delicati" },
+  spugna_cell:{ name: "Spugna di cellulosa o luffa", e: "🧽", cat: "Bacinella e mani", unit: "", dose: 0, chem: "Fibre vegetali: si compostano e non perdono microplastiche come le spugne sintetiche.", good: "Lavaggi a zone, zaini, pelle", bad: "" },
+  bacinella: { name: "Bacinella",                    e: "🥣", cat: "Bacinella e mani", unit: "", dose: 0, chem: "Lavare e risciacquare per immersione consuma molta meno acqua del rubinetto aperto.", good: "Lavaggi a mano", bad: "" },
+  secchio:   { name: "Secchio con coperchio",        e: "🪣", cat: "Bacinella e mani", unit: "", dose: 0, chem: "Per gli ammolli: il coperchio trattiene calore e odori ed evita gli schizzi.", good: "Ammolli", bad: "" },
+  crema_mani:{ name: "Crema mani emolliente",        e: "🧴", cat: "Bacinella e mani", unit: "", dose: 0, chem: "Glicerina e ceramidi trattengono l'acqua e aiutano a ricostruire la barriera della pelle dopo il lavoro bagnato.", good: "Dopo ogni lavaggio a mano", bad: "" }
 };
-const PRODUCT_CATS = ["Detersivi", "Additivi", "Risciacquo", "Pretrattamento", "Accessori"];
+const PRODUCT_CATS = ["Detersivi", "Additivi", "Risciacquo", "Pretrattamento", "Accessori", "Bacinella e mani"];
 const STARTER_KIT = ["liq_colori", "polvere", "percarbonato", "acido_citrico", "lana", "acchiappacolore"];
 
 // Detersivo preferito per tipo di carico (in ordine)

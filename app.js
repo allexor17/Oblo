@@ -8,7 +8,8 @@ const DEF = {
   items: [], pantry: {}, seen: {}, load: [],
   settings: { cap: 7, hard: "media", fh: "", tin: 15, price: 0.3, eco: true, quiz: false, planMode: "min" },
   stats: { washes: 0, qOk: 0, qTot: 0 },
-  labTab: "box", labCat: "tutti"
+  labTab: "box", labCat: "tutti",
+  timers: {}
 };
 const clone = o => JSON.parse(JSON.stringify(o));
 function loadState() {
@@ -74,11 +75,11 @@ function classify() {
 
 // ───────────────────────────── NAVIGAZIONE ─────────────────────────────
 let VIEW = "cesto";
-const SUBS = { cesto: "Smista i capi nelle ceste", dispensa: "I prodotti che hai in casa", lavatrice: "Dosi, gradi, giri e perché", lab: "Il perché di ogni gesto" };
+const SUBS = { cesto: "Smista i capi nelle ceste", dispensa: "I prodotti che hai in casa", lavatrice: "Dosi, gradi, giri e perché", mano: "A mano e in ammollo", lab: "Il perché di ogni gesto" };
 function go(v) {
   if (SIM) stopSim();
   VIEW = v;
-  for (const id of ["cesto", "dispensa", "lavatrice", "lab"]) $("#v-" + id).hidden = id !== v;
+  for (const id of ["cesto", "dispensa", "lavatrice", "mano", "lab"]) $("#v-" + id).hidden = id !== v;
   document.querySelectorAll(".tabs button").forEach(b => b.dataset.view === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   $("#viewSub").textContent = SUBS[v];
   render();
@@ -90,6 +91,7 @@ function render() {
   if (VIEW === "cesto") renderCesto();
   else if (VIEW === "dispensa") renderDispensa();
   else if (VIEW === "lavatrice") renderLavatrice();
+  else if (VIEW === "mano") renderMano();
   else renderLab();
 }
 
@@ -109,7 +111,7 @@ function closeSheet() {
   $("#sheetWrap").hidden = true;
   $("#sheet").innerHTML = "";
   document.body.style.overflow = "";
-  D = null; Q = null; CARD = null;
+  D = null; Q = null; CARD = null; GUIDE = null;
   if (lastFocus && lastFocus.focus) lastFocus.focus();
 }
 const sheetHead = (title, extra = "") => `<div class="sheet-head"><div>${extra}<h2 id="sheetTitle">${title}</h2></div><button class="xbtn" type="button" data-act="close" aria-label="Chiudi">×</button></div>`;
@@ -213,6 +215,7 @@ function planHTML(map) {
       <p class="small">${R.program.name}, ${R.T}°C, ${R.spin} giri · ${fmt1(g.kg)} kg, ${Math.round(R.fill * 100)}% del cestello</p>
       ${cm.length ? `<ul class="compro"><li><span class="lvl ${lvlCls(cm[0].level)}">${LEVEL_NAME[cm[0].level]}</span> ${cm[0].text}</li></ul>${cm.length > 1 ? `<details class="why"><summary>${cm.length === 2 ? "Un altro compromesso" : `Altri ${cm.length - 1} compromessi`}</summary><ul class="compro">${cm.slice(1).map(m => `<li><span class="lvl ${lvlCls(m.level)}">${LEVEL_NAME[m.level]}</span> ${m.text}</li>`).join("")}</ul></details>` : ""}` : `<p class="small muted">Nessun compromesso.</p>`}
       ${g.n > 1 ? `<p class="tiny">Non ci sta tutto in un cestello: dividi in ${g.n} lavaggi uguali.</p>` : R.fill < 0.3 ? `<p class="tiny">Carico leggero: se non ti serve subito, aspetta di avere più capi.</p>` : ""}
+      ${guideChips(its, "Prima, o al posto della lavatrice:")}
       <button class="btn sm" type="button" data-act="plan-open" data-i="${i}">Apri in lavatrice</button></div></li>`;
   }).join("")}</ol>`;
   for (const g of P.hand) h += handHTML(g, map);
@@ -236,8 +239,8 @@ function handHTML(g, map) {
   return `<div class="load hand"><div class="load-sw">${g.keys.map(swatch).join("")}</div><div class="load-body">
     <b>A mano nel lavandino</b><p class="load-names">${cap1(names(its, 4))}</p>
     <p class="small muted">${wool ? "Per pochi capi di lana o seta non vale la pena di avviare una lavatrice: a mano ci vogliono dieci minuti." : "Uno o due capi nuovi che stingono: lavarli a mano a freddo costa meno di una lavatrice, e vedi quanto colore rilasciano."}</p>
-    <details class="why"><summary>Come si fa</summary><div class="why-body"><ol class="bullets">${steps.map(x => `<li>${x}</li>`).join("")}</ol></div></details>
-    <button class="btn ghost sm" type="button" data-act="hand-done" data-keys="${g.keys.join(",")}" style="margin-top:10px">Fatto, segna come lavato</button></div></div>`;
+    <div class="row" style="margin-top:10px"><button class="btn sm" type="button" data-act="guide" data-id="${wool ? (g.keys.includes("mano") && !g.keys.includes("lana") ? "seta_mano" : "lana_mano") : "stinge_mano"}">Apri la guida</button>
+    <button class="btn ghost sm" type="button" data-act="hand-done" data-keys="${g.keys.join(",")}">Fatto, segna come lavato</button></div></div></div>`;
 }
 function removeBaskets(keys) {
   const map = classify();
@@ -380,6 +383,8 @@ function openItem(id) {
   h += `<h4>Perché</h4><p>${r.why}</p>`;
   if (r.notes.length) h += `<div class="group"><h4>Da fare</h4><ul class="bullets">${r.notes.map(n => `<li>${n}</li>`).join("")}</ul></div>`;
   if (it.flags.macchia && STAINS[it.flags.macchia]) h += `<div class="group"><h4>La macchia</h4><div class="links"><button class="link-card" type="button" data-act="stain" data-id="${it.flags.macchia}">${STAINS[it.flags.macchia].e} Come trattare: ${lc(STAINS[it.flags.macchia].name)}</button></div></div>`;
+  const gid = guideFor(it);
+  if (gid) h += `<div class="group"><h4>Passo passo</h4><button class="guide-link" type="button" data-act="guide" data-id="${gid}"><span class="em" aria-hidden="true">${GUIDES[gid].e}</span><span><b>${GUIDES[gid].name}</b><small>${GUIDES[gid].sub}</small></span></button></div>`;
   if (r.cards.length) h += `<div class="group"><h4>Approfondisci</h4><div class="links">${r.cards.map(cid => `<button class="link-card" type="button" data-act="card" data-id="${cid}">${CARD_BY_ID[cid].title}</button>`).join("")}</div></div>`;
   h += `<div class="sheet-foot row"><button class="btn ghost" type="button" data-act="edit" data-id="${it.id}">Modifica</button><button class="btn danger" type="button" data-act="remove" data-id="${it.id}">Togli dal cesto</button></div>`;
   openSheet(h);
@@ -527,6 +532,8 @@ function renderLavatrice() {
   h += `</section>`;
 
   // prima di avviare
+  const gch = guideChips(items, "");
+  if (gch) h += `<section class="panel"><h3>Prima, o al posto della lavatrice</h3><p class="small muted" style="margin-top:4px">Per alcuni capi di questo carico c'è una guida a mano: un ammollo da fare prima, o un modo più delicato ed ecologico.</p>${gch}</section>`;
   h += `<section class="panel"><h3>Prima di avviare</h3><div class="checklist" style="margin-top:8px">${R.checklist.map((c, i) => `<label class="check"><input type="checkbox" data-act="noop"><span>${c}</span></label>`).join("")}</div></section>`;
 
   if (R.stains.length) {
@@ -662,6 +669,118 @@ function markDone() {
   save(); render(); window.scrollTo(0, 0);
   toast(`Lavati ${n} ${n === 1 ? "capo" : "capi"}. Ora stendi entro mezz'ora.`);
 }
+
+// ───────────────────────────── BACINELLA ─────────────────────────────
+function guideChips(items, label) {
+  const ids = [...new Set(items.map(guideFor).filter(Boolean))];
+  if (!ids.length) return "";
+  return `${label ? `<p class="small" style="margin-top:10px"><b>${label}</b></p>` : ""}<div class="links" style="margin-top:8px">${ids.map(id => `<button class="link-card" type="button" data-act="guide" data-id="${id}">${GUIDES[id].e} ${GUIDES[id].name}</button>`).join("")}</div>`;
+}
+const fmtLeft = ms => {
+  if (ms <= 0) return "finito";
+  const m = Math.ceil(ms / 60000);
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60), r = m % 60;
+  return r ? `${h} h ${r} min` : `${h} h`;
+};
+const fmtDur = sec => sec < 3600 ? `${Math.round(sec / 60)} minuti` : `${fmt1(sec / 3600)} ${sec === 3600 ? "ora" : "ore"}`;
+const fmtClock = ts => new Date(ts).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+function timersHTML() {
+  const ts = Object.entries(S.timers || {});
+  if (!ts.length) return "";
+  return `<section class="panel stack"><h3>In corso</h3>${ts.map(([gid, t]) => `<div class="timer-row"><span class="em" aria-hidden="true">${GUIDES[gid] ? GUIDES[gid].e : "⏱️"}</span>
+    <button class="timer-name" type="button" data-act="guide" data-id="${gid}"><b>${t.step}</b><small>${GUIDES[gid] ? GUIDES[gid].name : ""} · pronto alle ${fmtClock(t.end)}</small></button>
+    <span class="timer-left" data-timer-end="${t.end}">${fmtLeft(t.end - Date.now())}</span>
+    <button class="xbtn" type="button" data-act="timer-stop" data-id="${gid}" aria-label="Togli il timer">×</button></div>`).join("")}</section>`;
+}
+function toolChip(id) {
+  const P = PRODUCTS[id], have = owned(S.pantry, id);
+  return `<button class="chip need ${have ? "have" : ""}" type="button" data-act="own-g" data-id="${id}" aria-pressed="${have}" title="${have ? "Ce l'hai" : "Tocca se ce l'hai"}"><span class="em" aria-hidden="true">${P.e}</span>${P.name}</button>`;
+}
+function renderMano() {
+  const map = classify();
+  let h = `<div class="section-head"><div><h2>Bacinella</h2><p class="muted">Quello che la lavatrice non sa fare, o fa peggio: ammolli, lavaggi a mano, scarpe e zaini.</p></div></div>`;
+  h += timersHTML();
+  // dal cesto
+  const fromBasket = {};
+  for (const it of S.items) { const g = guideFor(it); if (g) (fromBasket[g] = fromBasket[g] || []).push(it); }
+  const fb = Object.entries(fromBasket);
+  if (fb.length) {
+    h += `<section class="panel stack"><h3>Dal tuo cesto</h3><div class="guide-list">${fb.map(([gid, its]) => guideCard(gid, cap1(names(its, 3)))).join("")}</div></section>`;
+  }
+  // mani
+  h += `<section class="panel hands">
+    <h3>Le mani prima di tutto</h3>
+    <p class="small muted" style="margin-top:4px">I detersivi sciolgono il grasso delle macchie, ma anche quello che tiene insieme la barriera della pelle.</p>
+    <ul class="hand-rules">${HANDS.rules.map(r => `<li>${r}</li>`).join("")}</ul>
+    <button class="guide-link" type="button" data-act="card" data-id="mani"><span class="em" aria-hidden="true">🔬</span><span><b>${CARD_BY_ID.mani.title}</b><small>Mattoni, malta e mantello acido: la pelle vista dal detersivo</small></span></button>
+    <h4 style="margin-top:16px">Gli attrezzi</h4>
+    <p class="tiny" style="margin:2px 0 8px">Tocca quelli che hai già: le guide li useranno.</p>
+    <div class="chips">${HANDS.tools.map(toolChip).join("")}</div>
+  </section>`;
+  for (const gr of GUIDE_GROUPS) h += `<section class="stack"><h3>${gr.name}</h3><div class="guide-list">${gr.ids.map(id => guideCard(id)).join("")}</div></section>`;
+  $("#v-mano").innerHTML = h;
+}
+function guideCard(id, forWhat) {
+  const g = GUIDES[id];
+  return `<button class="guide-card" type="button" data-act="guide" data-id="${id}">
+    <span class="em" aria-hidden="true">${g.e}</span>
+    <span class="gc-body"><b>${g.name}</b><span class="gc-sub">${forWhat ? `Per: ${forWhat}` : g.sub}</span>
+      <span class="gc-meta"><span>${g.time}</span><span class="skin ${g.skin}">${SKIN[g.skin].short}</span></span></span></button>`;
+}
+let GUIDE = null;
+function openGuide(id, keep) {
+  const g = GUIDES[id]; if (!g) return;
+  GUIDE = id;
+  let h = sheetHead(`<span aria-hidden="true">${g.e}</span> ${g.name}`, `<span class="tiny">${g.method}</span>`);
+  h += `<div class="guide-meta">
+    <div><small>Tempo</small><b>${g.time}</b></div>
+    <div><small>Acqua</small><b>${g.water}</b></div>
+    <div class="skin-box ${g.skin}"><small>Mani</small><b>${SKIN[g.skin].name}</b></div>
+  </div>`;
+  h += `<p class="group">${g.when}</p>`;
+  h += `<div class="note ${g.skin === "must" ? "no" : g.skin === "si" ? "warn" : "ok"} group"><b>${SKIN[g.skin].name}</b>${g.skinWhy}</div>`;
+  // cosa serve
+  h += `<div class="group"><h4>Cosa ti serve</h4><div class="need-list">${g.products.map(grp => {
+    const have = grp.ids.find(pid => owned(S.pantry, pid));
+    const pid = have || grp.ids[0], P = PRODUCTS[pid];
+    const alts = grp.ids.filter(x => x !== pid).map(x => lc(PRODUCTS[x].name));
+    return `<div class="need-row ${have ? "ok" : ""}"><span class="em" aria-hidden="true">${P.e}</span><div><b>${P.name}</b>${have ? ` <span class="lvl si">ce l'hai</span>` : ` <button class="lvl add" type="button" data-act="own-g" data-id="${pid}">ce l'ho</button>`}
+      <p class="small muted">${cap1(grp.note)}.${alts.length ? ` In alternativa: ${alts.join(", ")}.` : ""}</p></div></div>`;
+  }).join("")}</div>
+    <div class="chips" style="margin-top:10px">${g.tools.map(toolChip).join("")}</div></div>`;
+  // passaggi
+  h += `<div class="group"><h4>Passo passo</h4><ol class="steps">${g.steps.map((st, i) => {
+    const t = S.timers && S.timers[id];
+    const running = t && t.i === i;
+    const tbtn = st.timer ? (running
+      ? `<div class="step-timer on"><span>⏱️ <b data-timer-end="${t.end}">${fmtLeft(t.end - Date.now())}</b> · pronto alle ${fmtClock(t.end)}</span><button class="btn plain sm" type="button" data-act="timer-stop" data-id="${id}">Ferma</button></div>`
+      : `<button class="btn ghost sm step-timer" type="button" data-act="timer-start" data-id="${id}" data-i="${i}">⏱️ Avvia timer · ${fmtDur(st.timer)}</button>`) : "";
+    return `<li><b>${st.t}</b><p>${st.d}</p>${tbtn}</li>`;
+  }).join("")}</ol></div>`;
+  h += `<div class="group"><h4>Da evitare</h4><ul class="bullets">${g.avoid.map(a => `<li>${a}</li>`).join("")}</ul></div>`;
+  h += `<div class="group eco-box"><b>🌿 Ecologia</b>${g.eco}</div>`;
+  h += `<div class="group"><h4>La scienza</h4><p>${g.why}</p>${g.cards.length ? `<div class="links" style="margin-top:10px">${g.cards.map(c => `<button class="link-card" type="button" data-act="card" data-id="${c}">${CARD_BY_ID[c].title}</button>`).join("")}</div>` : ""}</div>`;
+  openSheet(h, keep);
+}
+function startTimer(id, i) {
+  const st = GUIDES[id].steps[i];
+  S.timers = S.timers || {};
+  S.timers[id] = { i, step: st.t, end: Date.now() + st.timer * 1000, done: false };
+  save();
+  toast(`Timer avviato: pronto alle ${fmtClock(S.timers[id].end)}. Tienilo d'occhio qui, nella Bacinella.`);
+}
+setInterval(() => {
+  const now = Date.now();
+  document.querySelectorAll("[data-timer-end]").forEach(el => { el.textContent = fmtLeft(+el.dataset.timerEnd - now); });
+  for (const [gid, t] of Object.entries(S.timers || {})) {
+    if (!t.done && t.end <= now) {
+      t.done = true; save();
+      toast(`${GUIDES[gid] ? GUIDES[gid].e + " " : ""}${t.step}: tempo scaduto.`, { label: "Apri", fn: () => openGuide(gid) });
+      if (navigator.vibrate) try { navigator.vibrate([200, 100, 200]); } catch (e) { /* niente */ }
+    }
+  }
+}, 1000);
 
 // ───────────────────────────── LABORATORIO ─────────────────────────────
 function renderLab() {
@@ -845,6 +964,15 @@ document.addEventListener("click", e => {
       if (act === "plan-open") go("lavatrice"); else render();
       break;
     }
+    case "guide": openGuide(id); break;
+    case "own-g": {
+      S.pantry[id] = { ...(S.pantry[id] || {}), have: !owned(S.pantry, id) }; save();
+      if (GUIDE && !$("#sheetWrap").hidden) openGuide(GUIDE, true);
+      if (VIEW === "mano" || VIEW === "dispensa") render();
+      break;
+    }
+    case "timer-start": startTimer(id, +a.dataset.i); openGuide(id, true); if (VIEW === "mano") render(); break;
+    case "timer-stop": delete S.timers[id]; save(); if (!$("#sheetWrap").hidden && GUIDE === id) openGuide(id, true); if (VIEW === "mano") render(); break;
     case "hand-done": { const n = removeBaskets(a.dataset.keys.split(",")); save(); render(); toast(`Lavati a mano ${n} ${n === 1 ? "capo" : "capi"}. In piano all'ombra.`); break; }
     // bozza
     case "d-g": D.g = a.dataset.v; D.fiber = GARMENTS[D.g].fiber; D.pickG = false; D.flags.elastan = ["leggings", "sportmaglia", "costume"].includes(D.g); if (GARMENTS[D.g].stain && !D.id) D.flags.macchia = GARMENTS[D.g].stain; renderAdd(false); break;

@@ -8,7 +8,8 @@ const CARD_CATS = {
   ecologia: "Ecologia",
   miti: "Miti",
   trucchi: "Trucchi",
-  curiosita: "Curiosità"
+  curiosita: "Curiosità",
+  pelle: "Pelle"
 };
 
 const CARDS = [
@@ -680,6 +681,98 @@ const CARDS = [
       "Chiudi sempre la confezione."
     ],
     rel: ["dose", "polvere_liquido"]
+  },
+  {
+    id: "mani", cat: "pelle",
+    title: "Perché i detersivi irritano le mani",
+    ask: "Dopo un lungo lavaggio a mano le mani tirano e si screpolano. Cosa è successo alla pelle?",
+    opts: [
+      ["Ha perso acqua, quindi è disidratata", false, "È vero, ma è la conseguenza: manca ciò che di solito trattiene l'acqua."],
+      ["I tensioattivi hanno portato via i lipidi che fanno da barriera", true],
+      ["È un'allergia al detersivo", false, "L'allergia esiste ma è rara. Molto più comune è l'irritazione, che non ha bisogno del sistema immunitario."]
+    ],
+    body: [
+      "Lo strato più esterno della pelle, lo strato corneo, funziona come un muro di <b>mattoni e malta</b>. I mattoni sono i corneociti, cellule morte piene di cheratina; la malta è un impasto di lipidi (ceramidi, colesterolo, acidi grassi liberi) disposti in lamelle. È la malta che trattiene l'acqua dentro e tiene fuori le sostanze irritanti.",
+      "I tensioattivi non distinguono il grasso della macchia da quello della malta: emulsionano anche quello e lo portano via. Alcuni, come il laurilsolfato di sodio, si legano pure alla cheratina e la fanno gonfiare. Da una barriera bucata l'acqua evapora più in fretta (aumenta la perdita d'acqua transepidermica): la pelle diventa secca, ruvida, screpolata, e lascia entrare più facilmente altri irritanti.",
+      "Due aggravanti. Il <b>pH</b>: la superficie della pelle è acida, intorno a pH 4,5–5,5, il cosiddetto mantello acido. Percarbonato, soda e sapone di Marsiglia la spingono verso l'alcalino, e a pH più alto si attivano enzimi che sciolgono i legami tra i corneociti. Il <b>calore</b>: l'acqua calda scioglie la malta più in fretta.",
+      "Ripetuto nel tempo, questo si chiama <b>dermatite irritativa da contatto</b>, la forma più comune di eczema delle mani. Nella medicina del lavoro si parla di lavoro bagnato oltre circa 2 ore al giorno con le mani in acqua o dentro guanti occlusivi, o oltre una ventina di lavaggi delle mani: anche il guanto, tenuto a lungo, fa macerare la pelle nel sudore."
+    ],
+    ana: "È il motivo per cui in reparto, quando le mani non sono visibilmente sporche, si preferisce la frizione alcolica al lavaggio con acqua e sapone: il gel con emollienti evapora in fretta e porta via molti meno lipidi della barriera. L'eczema delle mani di chi lavora in ospedale è il caso da manuale del lavoro bagnato.",
+    pratica: [
+      "Guanti per l'acqua calda, i prodotti alcalini e gli ammolli; mani nude solo per risciacqui brevi in acqua fredda.",
+      "Guanti in nitrile, con un sottoguanto di cotone se li tieni a lungo. Toglili appena senti sudare.",
+      "Pinze per gli ammolli e spazzolino per le macchie: meno dita nel detersivo.",
+      "Dopo: sciacqua, asciuga bene anche tra le dita, crema emolliente con glicerina o ceramidi."
+    ],
+    rel: ["tensioattivi", "enzimi", "candeggina"]
+  },
+  {
+    id: "ammollo", cat: "fisica",
+    title: "Ammollo: quando il tempo lava al posto tuo",
+    ask: "Un'ora di ammollo freddo toglie una macchia di sangue meglio di cinque minuti di strofinate. Perché?",
+    opts: [
+      ["Perché l'acqua fredda è più aggressiva", false, "Al contrario, è più gentile. Il vantaggio sta altrove."],
+      ["Perché il rigonfiamento delle fibre e la diffusione dello sporco hanno bisogno di tempo", true],
+      ["Perché col tempo il detersivo si concentra", false, "La concentrazione resta la stessa: cambia quanto sporco riesce a uscire."]
+    ],
+    body: [
+      "Lo sporco incastrato nella trama deve fare un viaggio: l'acqua deve entrare nella fibra, sciogliere o staccare lo sporco, e lo sporco deve diffondere fuori. La diffusione è lenta: secondo la legge di Fick, il tempo per percorrere una distanza cresce con il quadrato della distanza. Nei fili ritorti e nelle fibre le distanze sono piccole, ma tortuose.",
+      "In acqua il cotone si gonfia: le zone amorfe della cellulosa assorbono acqua e la fibra si apre, liberando lo sporco intrappolato. Gli enzimi, se ci sono, hanno il tempo di tagliare proteine e amidi in frammenti solubili. È la quarta leva del cerchio di Sinner: il tempo che sostituisce calore e strofinate.",
+      "Ma l'ammollo ha dei limiti. Un'acqua ferma e piena di sporco organico è anche un terreno di coltura: dopo molte ore a temperatura ambiente i batteri si moltiplicano e l'acqua comincia a puzzare. Il colorante libero si ridistribuisce sulle zone chiare, e l'elastan e i rivestimenti impermeabili soffrono l'immersione lunga. Per questo l'ammollo ha una durata, e l'acqua si cambia."
+    ],
+    ana: "Come un impacco: una garza umida lasciata in posa ammorbidisce una crosta molto meglio che strofinarla, e senza danneggiare la pelle sotto.",
+    pratica: [
+      "Macchie proteiche: ammollo freddo, da 30 minuti a qualche ora.",
+      "Ingrigimenti e aloni sui bianchi: ammollo a 40–50°C con percarbonato.",
+      "Oltre 12–24 ore cambia l'acqua, oppure lascia asciugare all'aria fino al lavaggio.",
+      "Un coperchio sul secchio: meno odori e meno evaporazione."
+    ],
+    rel: ["sinner", "sangue", "lavabili"]
+  },
+  {
+    id: "mano_o_lavatrice", cat: "ecologia",
+    title: "A mano o in lavatrice: chi consuma meno?",
+    ask: "Due maglioni di lana: meglio una bacinella o un ciclo lana in lavatrice?",
+    opts: [
+      ["La lavatrice: è sempre più efficiente", false, "Lo è con i carichi pieni. Con due capi vince la bacinella."],
+      ["La bacinella: pochi litri e niente da scaldare", true],
+      ["È uguale", false, "Un ciclo ha un costo fisso di acqua ed energia anche con due capi dentro."]
+    ],
+    body: [
+      "Una lavatrice moderna usa all'incirca 40–60 litri per un ciclo completo, e il ciclo lana è tra i più ricchi d'acqua in rapporto al carico. Con due capi soli, quell'acqua e l'energia del ciclo si dividono su pochissimi chili.",
+      "In bacinella, un capo delicato chiede circa 5 litri per il lavaggio e 5–10 per i risciacqui, a freddo o tiepido. Il segreto è proprio la bacinella: risciacquare sotto il rubinetto aperto consuma 6–12 litri al minuto e si mangia tutto il vantaggio.",
+      "Con un carico pieno, invece, la lavatrice vince quasi sempre: dosa l'acqua, centrifuga meglio di qualsiasi strizzata (e l'acqua che resta nei capi andrà poi fatta evaporare), e non tiene le tue mani nel detersivo.",
+      "La regola che ne esce: pochi capi delicati a mano, tutto il resto a carichi pieni in lavatrice."
+    ],
+    ana: "Autobus o bicicletta: con tanti passeggeri l'autobus consuma meno per persona, per uno solo vince la bicicletta.",
+    pratica: [
+      "Fino a 2–3 capi delicati: bacinella.",
+      "Risciacqua immergendo in una seconda bacinella, non sotto il getto.",
+      "Tutto il resto a carichi pieni in lavatrice."
+    ],
+    rel: ["carico", "energia", "compromesso"]
+  },
+  {
+    id: "spugne", cat: "ecologia",
+    title: "Spugne, spazzole e microplastiche",
+    ask: "La gomma magica (spugna di melamina) toglie i segni dalle suole così bene perché…",
+    opts: [
+      ["Contiene un detergente potentissimo", false, "Non contiene detergenti: è solo una schiuma."],
+      ["È un abrasivo finissimo che si consuma mentre strofini", true],
+      ["Attira lo sporco con l'elettricità statica", false, "L'effetto è puramente meccanico."]
+    ],
+    body: [
+      "La spugna di melamina è una schiuma di resina melammina-formaldeide molto rigida: al microscopio è una rete di filamenti duri e sottilissimi, che si comporta come una carta abrasiva finissima. Lo sporco viene grattato via e, intanto, la spugna si consuma: per questo si rimpicciolisce.",
+      "Quello che perde sono microfibre di plastica. Uno studio pubblicato nel 2024 su <i>Environmental Science &amp; Technology</i> ha stimato circa 6,5 milioni di fibre per grammo di spugna consumata, e oltre mille miliardi di fibre al mese nel mondo, contando solo le vendite online.",
+      "Anche le spugne sintetiche comuni, in poliuretano o poliestere, perdono frammenti con l'uso. Le alternative: spugne di cellulosa (fibra vegetale rigenerata, compostabile), luffa (il frutto essiccato di una pianta della famiglia delle zucche), spazzole durevoli. Uno spazzolino vecchio è il riuso perfetto: setole morbide, testa piccola, già in casa."
+    ],
+    ana: "È come la carta vetrata: leviga perché i suoi granelli si staccano e si consumano insieme al materiale. Solo che i granelli della melamina finiscono nello scarico.",
+    pratica: [
+      "Suole e bordi: prima pasta di bicarbonato e spazzola, la gomma magica solo se serve davvero.",
+      "Se la usi: bagnata, su piccole zone, e strizzala nel secchio dell'indifferenziato, non nel lavandino.",
+      "Spugne di cellulosa o luffa per i lavaggi a mano, spazzolino vecchio per le macchie."
+    ],
+    rel: ["microplastiche", "lavare_meno"]
   },
   {
     id: "compromesso", cat: "ecologia",
