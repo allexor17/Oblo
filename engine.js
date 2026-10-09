@@ -218,7 +218,7 @@ const TONE_PAIRS = {
   "W|D": ["forte", "Bianchi con capi scuri è il compromesso più costoso: a 30°C con due acchiappacolore va bene ogni tanto, ma come abitudine i bianchi ingrigiscono."]
 };
 const FABRIC_PAIRS = {
-  "cot|spu": ["lieve", "Spugna e capi lisci: niente ammorbidente per nessuno, e qualche pelucchio sui capi lisci."],
+  "cot|spu": ["lieve", "Spugna e capi lisci: niente ammorbidente per nessuno. La spugna bagnata è pesante e ruvida: qualche pelucchio e un po' di attrito sui capi lisci."],
   "cot|sin": ["lieve", "Con i tecnici: niente ammorbidente per tutto il carico e centrifuga a 800, il cotone esce un po' più umido."],
   "cot|del": ["lieve", "I delicati vanno in retina e il carico passa a Misti 30°C con centrifuga bassa: lo sporco più ostinato viene tolto un po' meno."],
   "sin|spu": ["forte", "La spugna perde pelucchi e i tecnici li attirano; in più la spugna rinuncia ai 60°C."],
@@ -252,6 +252,21 @@ function bleedPair(tb, other, to) {
   if (tb === "D" && to === "D") return ["lieve", "I capi nuovi scuri stingono ancora, ma insieme agli altri scuri, a freddo e con due acchiappacolore, il colore libero non si nota."];
   return ["forte", "Un capo nuovo di colore intenso rilascia colorante: solo a freddo, con due acchiappacolore e con colori simili."];
 }
+// Quarta dimensione: pelucchi e attrito.
+// La spugna perde fibre e, bagnata, diventa pesante e ruvida: i suoi ricci agganciano le fibre dei capi lisci
+// e le tirano fuori dal filato, come il velcro su un maglione. Sugli scuri si vede tutto, pelucchi e pallini.
+// Chi cede (spugna, felpe) contro chi attira (pile, microfibra) è sempre un compromesso forte.
+const LINT_DARK = "Spugna e scuri: la spugna perde fibre e, bagnata e pesante, sfrega i capi lisci come il velcro su un maglione. Sugli scuri si vedono sia i pelucchi sia i pallini. Meglio la spugna con i colorati o da sola a 60°C; se li unisci, scuri al rovescio, cestello non stipato, centrifuga bassa.";
+const LINT_ATTRACT = "Qui c'è chi perde pelucchi (spugna, felpe) e chi li attira (pile, microfibra): l'elettricità statica e la trama del sintetico li trattengono, e non vanno più via.";
+function lintPair(a, b, ta, tb, map) {
+  const ia = (map && map[a]) || [], ib = (map && map[b]) || [];
+  const dark = (k, t) => FABRIC[k] === "cot" && t === "D";
+  if ((FABRIC[a] === "spu" && dark(b, tb)) || (FABRIC[b] === "spu" && dark(a, ta))) return ["forte", LINT_DARK];
+  const sheds = (k, its) => FABRIC[k] === "spu" || its.some(it => has(it, "cede"));
+  const attracts = its => its.some(it => has(it, "attira"));
+  if ((sheds(a, ia) && attracts(ib)) || (sheds(b, ib) && attracts(ia))) return ["forte", LINT_ATTRACT];
+  return ["ok", ""];
+}
 // a, b: chiavi delle ceste · map: capi per cesta (facoltativo)
 function compatPair(a, b, map) {
   if (a === b) return { level: "ok", msgs: [] };
@@ -272,12 +287,18 @@ function compatPair(a, b, map) {
         : ["lieve", `La cesta «${BASKETS[hot].name}» vorrebbe 60°C per l'igiene: insieme si scende a 40°C o meno. Con l'ossigeno attivo l'igiene resta buona per l'uso quotidiano.`];
     }
   }
-  const w = worse(worse(tone, fab), heat);
+  const lint = fab[0] === "no" ? ["ok", ""] : lintPair(a, b, ta, tb, map);
+  const w = worse(worse(worse(tone, fab), heat), lint);
   const msgs = [];
   if (fab[0] === "no") msgs.push({ level: "no", text: fab[1] });
   else {
     if (tone[1]) msgs.push({ level: tone[0], text: tone[1] });
-    if (fab[1]) msgs.push({ level: fab[0], text: fab[1] });
+    // il messaggio su pelucchi e attrito sostituisce quello generico sul tessuto, se è più grave
+    if (lint[1] && LEVELS[lint[0]] >= LEVELS[fab[0]]) msgs.push({ level: lint[0], text: lint[1] });
+    else {
+      if (fab[1]) msgs.push({ level: fab[0], text: fab[1] });
+      if (lint[1]) msgs.push({ level: lint[0], text: lint[1] });
+    }
     if (heat[1]) msgs.push({ level: heat[0], text: heat[1] });
   }
   return { level: w[0], msgs };

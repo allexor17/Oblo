@@ -967,7 +967,31 @@ const CARDS = [
       "Pulisci il filtro della lavatrice.",
       "Rovescia i capi che attirano."
     ],
-    rel: ["rovescio", "asciugamani_nuovi"]
+    rel: ["rovescio", "asciugamani_nuovi", "pallini"]
+  },
+  {
+    id: "pallini", cat: "fibre",
+    title: "Pelucchi dello stesso colore: i pallini",
+    ask: "Dopo un lavaggio con gli asciugamani verdi, la maglia nera è piena di pallini neri. Da dove vengono?",
+    opts: [
+      ["Dagli asciugamani", false, "Sarebbero verdi: questi hanno il colore della maglia, quindi vengono da lei."],
+      ["Dalla maglia stessa: lo sfregamento tira fuori le fibre dal filato e le aggroviglia", true],
+      ["Dal detersivo non sciolto", false, "Il detersivo lascia polvere o aloni biancastri, non palline di fibra."]
+    ],
+    body: [
+      "Il <b>pilling</b> avviene in tre tempi. Lo sfregamento sfila le estremità delle fibre dal filato e la superficie si copre di peluria; le fibre libere si aggrovigliano in una pallina; la pallina resta appesa alle poche fibre ancora ancorate al filato.",
+      "Se quelle fibre sono deboli, come nel cotone e nella lana, prima o poi si spezzano e la pallina cade. Il poliestere è così resistente che non si spezzano mai: la pallina resta lì. Per questo i misti con poliestere si riempiono di pallini più del cotone puro.",
+      "Nel cestello gli abrasivi sono la <b>spugna</b>, che bagnata diventa pesante e ha ricci che agganciano le fibre dei capi lisci, i <b>jeans</b> con cuciture spesse e rivetti, zip e velcro. Un cestello stipato e un programma lungo aumentano lo sfregamento.",
+      "Le <b>cellulasi</b> di alcuni detersivi per scuri tagliano la peluria del cotone prima che diventi pallina: nell'industria tessile si chiama <i>biopolishing</i>. Sul poliestere non hanno presa."
+    ],
+    ana: "I nodi sulla nuca dove sfrega la sciarpa: i capelli si annodano dove l'attrito è più forte, e il nodo resta attaccato perché i capelli sono troppo resistenti per spezzarsi. O il velcro su un maglione: ogni passaggio sfila qualche fibra.",
+    pratica: [
+      "Aspetta che il capo sia asciutto e togli i pallini con un levapelucchi: tirandoli con le dita strappi altre fibre e prepari i pallini di domani.",
+      "Scuri, maglie e jeans al rovescio, zip chiuse.",
+      "Spugna e jeans lontani dalle maglie fini, o maglie in retina.",
+      "Cestello non stipato, centrifuga bassa per gli scuri."
+    ],
+    rel: ["pelucchi", "neri_grigi", "rovescio"]
   },
   {
     id: "asciugamani_nuovi", cat: "trucchi",
