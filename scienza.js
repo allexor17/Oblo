@@ -879,7 +879,30 @@ const CARDS = [
       "Capi nuovi che stingono.",
       "Se il foglio esce molto colorato, quel capo deve continuare a fare lavaggi a parte."
     ],
-    rel: ["sale_colori", "test_colore"]
+    rel: ["sale_colori", "test_colore", "nylon_colore"]
+  },
+  {
+    id: "nylon_colore", cat: "chimica",
+    title: "Il nylon è un acchiappacolore",
+    ask: "Dopo un lavaggio con gli scuri, la giacca a vento grigio chiaro è diventata giallastra, ma il profilo bianco in poliestere è rimasto bianco. Perché?",
+    opts: [
+      ["Il poliestere era trattato con un antimacchia", false, "Non serve un trattamento: è la chimica della fibra a fare la differenza."],
+      ["La poliammide ha gruppi carichi positivamente che legano i coloranti anionici; il poliestere non ha cariche", true],
+      ["Il nylon si è rovinato col calore", false, "A 30°C il nylon non si altera: il giallo è colorante arrivato dagli altri capi."]
+    ],
+    body: [
+      "Le catene della <b>poliammide</b> terminano con gruppi amminici che in acqua, a pH neutro o acido, diventano –NH₃⁺. Molti coloranti che si staccano dal cotone hanno gruppi solfonato –SO₃⁻: più e meno si attraggono, e il colorante si lega alla fibra. È lo stesso principio del foglietto acchiappacolore, che è un tessuto caricato di gruppi positivi.",
+      "Il <b>poliestere</b> invece non ha cariche ed è idrofobo: i suoi coloranti entrano solo verso i 130°C. A 30°C non prende niente. Nei test di solidità del colore si lava il capo insieme a una striscia con sei fibre diverse, e la banda di nylon è spesso quella che si macchia di più.",
+      "Perché giallo e non nero? Il nero e il blu notte sono spesso miscele di più coloranti. Nell'acqua si separano, e la fibra prende di più quelli con più affinità: un po' come il pennarello nero che nella cromatografia su carta si divide in blu, rosso e giallo.",
+      "L'industria tinge il nylon in bagno acido, perché l'acido aumenta le cariche positive. Per questo un risciacquo acido, con colorante ancora in giro, non lo aiuta. Al contrario, un bagno alcalino toglie le cariche e può far rilasciare una parte del colorante appena preso."
+    ],
+    ana: "Come un acchiappacolore cucito dentro la giacca: quando i foglietti nel cestello sono saturi, continua a lavorare lui.",
+    pratica: [
+      "Nylon chiaro con i chiari, mai con scuri, jeans o capi nuovi.",
+      "Se ha preso colore: ammollo alcalino con un po' di percarbonato a 30–40°C e due acchiappacolore nuovi nel secchio, prima che il capo asciughi.",
+      "Due foglietti usciti neri vogliono dire che il colorante libero era più di quanto potessero catturare."
+    ],
+    rel: ["acchiappacolore", "test_colore", "ossigeno"]
   },
   {
     id: "novanta", cat: "miti",

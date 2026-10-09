@@ -175,6 +175,7 @@ function itemNotes(it, basket) {
     n.push(`L'etichetta dice al massimo ${it.label}°C: in questo carico la temperatura scenderà per tutti.`);
   if (has(it, "cede")) n.push("Perde pelucchi: tienilo lontano da pile, velluto e sintetici scuri.");
   if (has(it, "attira")) n.push("Attira i pelucchi: lontano da spugna e felpe nuove.");
+  if (isMagnet(it)) n.push("Nylon chiaro: è la fibra che prende più colore dagli altri capi. Mai con scuri, jeans o capi nuovi; con i colorati, due acchiappacolore.");
   if (has(it, "noAmm") && !has(it, "spugna") && !has(it, "lavabile")) n.push("Niente ammorbidente.");
   if (it.flags.macchia && STAINS[it.flags.macchia]) n.push(`Ha una macchia di ${lc(STAINS[it.flags.macchia].name)}: trattala prima del lavaggio. Trovi i passi nella lavatrice.`);
   if (it.flags.sporco === "poco" && !has(it, "igiene") && !has(it, "sport")) n.push("È poco sporco: forse basta arieggiarlo e smacchiare localmente?");
@@ -267,6 +268,21 @@ function lintPair(a, b, ta, tb, map) {
   if ((sheds(a, ia) && attracts(ib)) || (sheds(b, ib) && attracts(ia))) return ["forte", LINT_ATTRACT];
   return ["ok", ""];
 }
+// Il nylon chiaro è una calamita per il colorante: i gruppi amminici della poliammide, carichi positivamente,
+// legano i coloranti anionici liberi nell'acqua, come un acchiappacolore. Con scuri e capi che stingono: da evitare.
+const DYE_MAGNET = ["poliammide", "membrana"];
+const isMagnet = it => DYE_MAGNET.includes(it.fiber) && ["bianco", "chiaro"].includes(colorGroup(it));
+const MAGNET_DARK = "Nylon chiaro con scuri o capi che stingono: la poliammide lega il colorante libero come un acchiappacolore, e quando i foglietti sono saturi continua a prenderlo lei. Il grigio e il beige virano al giallastro o al grigio sporco, e non si torna indietro facilmente. Lavalo con i chiari.";
+const MAGNET_COL = "Nylon chiaro con capi colorati: la poliammide prende il colorante libero più di qualunque altra fibra. 30°C e due acchiappacolore, oppure lavalo con i chiari.";
+function magnetPair(a, b, ta, tb, map) {
+  if (!map) return ["ok", ""];
+  for (const [x, y, ty] of [[a, b, tb], [b, a, ta]]) {
+    if (!(map[x] || []).some(isMagnet)) continue;
+    if (y === "stinge" || ty === "D") return ["no", MAGNET_DARK];
+    if (ty === "C") return ["forte", MAGNET_COL];
+  }
+  return ["ok", ""];
+}
 // a, b: chiavi delle ceste · map: capi per cesta (facoltativo)
 function compatPair(a, b, map) {
   if (a === b) return { level: "ok", msgs: [] };
@@ -275,6 +291,7 @@ function compatPair(a, b, map) {
   if (a === "stinge") tone = bleedPair(ta, b, tb);
   else if (b === "stinge") tone = bleedPair(tb, a, ta);
   else tone = tonePair(ta, tb);
+  tone = worse(tone, magnetPair(a, b, ta, tb, map));
   const fab = fabricPair(FABRIC[a], FABRIC[b]);
   // terza dimensione: chi ha bisogno dei 60°C per l'igiene li perde?
   let heat = ["ok", ""];
