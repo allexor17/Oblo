@@ -54,25 +54,28 @@ const GUIDES = {
 
   ammollo_bianchi: {
     name: "Ammollo sbiancante", e: "⚪",
-    sub: "Percarbonato in acqua calda per colletti gialli, aloni, spugne ingrigite",
-    method: "Ammollo", time: "Da 30 minuti a una notte", water: "40–50°C", skin: "must",
+    sub: "Percarbonato e detersivo in acqua calda per federe e colletti gialli, aloni, spugne ingrigite",
+    method: "Ammollo", time: "Da 30 minuti a una notte", water: "Circa 50°C", skin: "must",
     skinWhy: "La soluzione di percarbonato è alcalina, con un pH intorno a 10–11, e ossidante: guanti in nitrile, e pinze per tirare fuori i capi.",
-    when: "Per pochi capi rovinati, un ammollo mirato costa meno che lavare tutto il carico a 60–90°C, e lavora più a lungo.",
+    when: "Per pochi capi ingialliti, un ammollo mirato costa meno che lavare tutto il carico a 60–90°C, e lavora molto più a lungo. È la strada quando il giallo è dappertutto e lo smacchiatore sulla singola macchia non basta.",
     products: [
-      { ids: ["percarbonato"], note: "1 cucchiaio per litro per le macchie ostinate, metà per ravvivare" },
-      { ids: ["polvere"], note: "in alternativa: contiene già ossigeno attivo, ma meno concentrato" }
+      { ids: ["percarbonato"], note: "1 cucchiaio per litro per gli aloni ostinati, metà per ravvivare" },
+      { ids: ["polvere", "liq_univ", "liq_colori"], note: "2 cucchiai ogni 5 litri: enzimi e tensioattivi staccano il sebo che tiene attaccato il giallo" }
     ],
     tools: ["secchio", "guanti", "pinze"],
     steps: [
-      { t: "Acqua calda, non bollente", d: "40–50°C: abbastanza per liberare l'ossigeno attivo, non tanto da cuocere le macchie proteiche." },
-      { t: "Prima sciogli, poi immergi", d: "Sciogli il percarbonato mescolando con un cucchiaio di legno, poi aggiungi i capi. Devono stare tutti sott'acqua: le parti fuori restano gialle." },
-      { t: "Aspetta", d: "Da 30 minuti per ravvivare a una notte per gli aloni vecchi. Il coperchio trattiene il calore, ma appoggialo senza chiudere.", timer: 7200 },
-      { t: "Tira fuori con le pinze", d: "Strizza con i guanti e lava normalmente in lavatrice." }
+      { t: "Metà bollente, metà fredda", d: "Acqua bollente e acqua fredda del rubinetto in parti uguali danno circa 55°C: la temperatura finale è la media, perché il calore che cede l'una è quello che acquista l'altra. Secchio e capi freddi la portano verso i 50°C: abbastanza per l'ossigeno attivo, non tanto da spegnere gli enzimi." },
+      { t: "Prima sciogli, poi immergi", d: "Percarbonato e detersivo nell'acqua, mescolando con un cucchiaio di legno finché non vedi più granuli. Se sulle macchie più scure vuoi insistere, prima dell'ammollo massaggiale con lo smacchiatore enzimatico." },
+      { t: "Tutto sott'acqua", d: "Federe e copricuscini sono sacchi: intrappolano aria e galleggiano. Aprili, spingili giù e appoggia sopra un piatto o una bottiglia piena d'acqua. Le parti fuori dall'acqua restano gialle." },
+      { t: "Aspetta", d: "Coperchio appoggiato, non chiuso, e un asciugamano sopra per trattenere il calore. Il percarbonato lavora soprattutto nelle prime ore calde, gli enzimi continuano mentre l'acqua si raffredda. Dopo un paio d'ore rigira i capi; per gli aloni vecchi lascia tutta la notte.", timer: 7200 },
+      { t: "Leggi l'acqua", d: "Se al mattino è giallo-marrone, il sebo ossidato è uscito. Se i capi sono ancora gialli, ripeti con una soluzione nuova: gli strati di mesi non si sciolgono in una notte." },
+      { t: "In lavatrice a 60°C", d: "Tira fuori con le pinze, strizza con i guanti e lava a 60°C con i bianchi in cotone, detersivo in polvere e acido citrico nella vaschetta col fiore. Se puoi, stendi al sole: gli UV spezzano gli ultimi doppi legami." },
+      { t: "Se restano macchie scure", d: "Una pasta di percarbonato e poca acqua calda sulla macchia per un'ora, poi di nuovo in lavatrice. Puntini neri o verdastri a grappolo, con odore di cantina, sono muffa: se resistono a due ammolli, sul cotone bianco serve candeggina diluita sulla sola macchia, poi risciacquo abbondante e, in quel lavaggio, niente acido citrico." }
     ],
-    avoid: ["Lana, seta, pelle, metalli delicati.", "Colori che non hai provato su una cucitura.", "Contenitori chiusi ermeticamente: libera ossigeno, e il tappo può saltare.", "Mai insieme a candeggina o acidi."],
+    avoid: ["Lana, seta, pelle, metalli delicati.", "Colori che non hai provato su una cucitura.", "Macchie arancio-marroni di ruggine: l'acqua ossigenata non le toglie e, col ferro, può indebolire il cotone fino a bucarlo. Per la ruggine serve l'acido citrico.", "Contenitori chiusi ermeticamente: libera ossigeno, e il tappo può saltare.", "Mai insieme a candeggina o acidi: candeggina e acido citrico liberano cloro gassoso."],
     eco: "L'ossigeno attivo finisce in acqua, ossigeno e carbonato di sodio: niente cloro negli scarichi.",
-    why: "In acqua il percarbonato si separa in carbonato di sodio e acqua ossigenata. Il carbonato alza il pH, e a pH alcalino l'acqua ossigenata forma lo ione idroperossido, che spezza i doppi legami dei pigmenti gialli. Il calore accelera la reazione: sotto i 40°C, senza attivatore, lavora pochissimo.",
-    cards: ["ossigeno", "mani", "candeggina"]
+    why: "Il giallo di federe e colletti è sebo ossidato: come nella lipofuscina, i lipidi perossidati si legano alle proteine e formano molecole con lunghe catene di doppi legami coniugati, che assorbono il blu. In acqua il percarbonato si separa in carbonato di sodio e acqua ossigenata; a pH alcalino l'acqua ossigenata forma lo ione idroperossido, che spezza quei doppi legami e rende il pigmento incolore. Ma il grasso sotto resterebbe e si ossiderebbe di nuovo: per questo servono anche enzimi e tensioattivi.",
+    cards: ["ossigeno", "enzimi", "mani", "candeggina"]
   },
 
   stinge_mano: {
