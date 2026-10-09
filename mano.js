@@ -28,7 +28,7 @@ const GUIDE_GROUPS = [
 const GUIDES = {
   assorbenti: {
     name: "Assorbenti e salvaslip lavabili", e: "🩹",
-    sub: "Risciacquo freddo, attesa asciutta o in ammollo, poi in lavatrice con l'intimo",
+    sub: "Risciacquo freddo (o ammollo se si sono seccati), poi in lavatrice con l'intimo",
     method: "Ammollo, poi lavatrice", time: "2 minuti subito, poi con il bucato", water: "Fredda", skin: "no",
     skinWhy: "Il risciacquo è solo acqua fredda: le mani vanno bene. Per lo smacchiatore enzimatico usa lo spazzolino, o i guanti.",
     when: "La lavatrice sa igienizzare, ma non sa fare il primo passo: togliere le proteine finché sono fredde e solubili. Quello spetta a te, ed è il passo che decide se resteranno aloni.",
@@ -39,12 +39,14 @@ const GUIDES = {
     tools: ["secchio", "pinze", "spazzolino", "retina"],
     steps: [
       { t: "Risciacqua subito", d: "Sotto l'acqua fredda, strizzando il pad su se stesso, finché l'acqua esce quasi limpida. Basta un minuto." },
+      { t: "Se si sono già seccati: reidrata", d: "Bacinella d'acqua fredda o appena tiepida (massimo 30°C) con un cucchiaino di detersivo liquido o un po' di smacchiatore enzimatico. Lascia in ammollo: l'acqua deve riportare in soluzione proteine e muco seccati, e gli enzimi hanno bisogno di tempo. Poi strofina il pad su se stesso, cotone contro cotone, e sciacqua. Pinze o guanti per le mani.", timer: 3600 },
       { t: "Scegli come aspettare il bucato", d: "<b>All'asciutto</b>: appeso, o in una retina aperta all'aria. È il metodo più semplice e non fa odore. <b>In ammollo</b>: secchio con coperchio e acqua fredda, da cambiare ogni giorno, per 1–2 giorni al massimo. Oltre, l'acqua ferma diventa un terreno di coltura e lo strato impermeabile soffre." },
       { t: "Se resta un alone, gli enzimi", d: "Una goccia di smacchiatore enzimatico o di detersivo liquido sull'alone, lavorata con lo spazzolino. Lascia agire.", timer: 1800 },
       { t: "In lavatrice con l'intimo", d: "Bottoncini chiusi, in retina, nel carico dell'intimo: 60°C se il pad è chiaro, altrimenti 40°C con ossigeno attivo. Niente ammorbidente." },
-      { t: "Asciuga all'aria, meglio al sole", d: "Gli UV schiariscono gli aloni rimasti. Niente termosifone né asciugatrice calda se c'è lo strato impermeabile (PUL)." }
+      { t: "Asciuga all'aria, meglio al sole", d: "Gli UV schiariscono gli aloni rimasti. Niente termosifone né asciugatrice calda se c'è lo strato impermeabile (PUL)." },
+      { t: "Morbidi di nuovo", d: "Acido citrico nella vaschetta ⚘ al lavaggio: scioglie calcare e residui alcalini che irrigidiscono il cotone. Prima di stendere sbatti forte il pad; da asciutto stropiccialo tra le mani per qualche secondo, per staccare le fibre che si sono incollate asciugando ferme." }
     ],
-    avoid: ["Acqua calda prima del risciacquo: cuoce le proteine dentro la fibra.", "Ammollo per giorni senza cambiare l'acqua.", "Candeggina al cloro e ammorbidente."],
+    avoid: ["Acqua calda prima del risciacquo o della reidratazione: cuoce le proteine dentro la fibra.", "Ammollo per giorni senza cambiare l'acqua.", "Candeggina al cloro e ammorbidente: l'ammorbidente sembra ammorbidire, ma riveste il cotone di un film che assorbe meno."],
     eco: "Un assorbente lavabile dura anni e sostituisce centinaia di usa e getta. Il suo costo ambientale sta quasi tutto nel lavaggio: risciacquo freddo e un posto nel carico dell'intimo che fai comunque, senza lavatrici dedicate.",
     why: "L'ammollo freddo usa il tempo, la quarta leva di Sinner, senza il rischio del calore: l'acqua entra nelle fibre, il cotone si gonfia e le proteine ancora solubili diffondono fuori. Ma un'acqua ferma, a temperatura ambiente e ricca di proteine, è anche un brodo di coltura: per questo va cambiata, oppure si sceglie l'attesa all'asciutto.",
     cards: ["lavabili", "ammollo", "mani"]
