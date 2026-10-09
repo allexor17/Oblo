@@ -28,6 +28,40 @@ const PROGRAMS = {
 };
 const SINNER_LABELS = ["Chimica", "Temperatura", "Azione meccanica", "Tempo"];
 
+// I nomi sul pannello della lavatrice. I programmi generici di Oblò descrivono un modo di lavare
+// (movimento, acqua, centrifuga); ogni lavatrice li chiama a modo suo, e alcuni non li ha.
+const DIALS = {
+  generico: { name: "Nomi generici" },
+  mio: {
+    name: "Come la mia lavatrice",
+    list: ["ECO 40-60", "Cotone", "Cotone con prelavaggio", "Lava/Indossa", "Lana", "Delicati", "Express 20'", "Jeans/Scuri", "Capi outdoor", "Impermeabilizzare", "Scarico/Centrifuga", "Solo risciacquo/Inamidare"]
+  }
+};
+function dialProgram(pk, items, synth, T, settings) {
+  const P = PROGRAMS[pk];
+  if ((settings && settings.dial) !== "mio") return { name: P.name, note: "" };
+  const t = `${T}°C`;
+  const outdoor = items.some(it => it.fiber === "membrana" || it.g === "giacca" || it.g === "pile");
+  switch (pk) {
+    case "eco": return { name: "ECO 40-60", note: "" };
+    case "cotone": return { name: "Cotone", note: `Imposta ${t} con il tasto della temperatura.` };
+    case "intensivo": return { name: "Cotone con prelavaggio", note: "Il detersivo va sia nella vaschetta I sia nella II." };
+    case "misti": return { name: "Lava/Indossa", note: `È il programma per sintetici e misti: movimento e centrifuga moderati, meno pieghe. Imposta ${t}.` };
+    case "colorati": return synth
+      ? { name: "Lava/Indossa", note: `La tua lavatrice non ha «Colorati»: per colorati sintetici o misti usa Lava/Indossa a ${t}. I colori li proteggono la temperatura bassa, il detersivo per colorati e gli acchiappacolore, non il nome del programma.` }
+      : { name: "Cotone", note: `La tua lavatrice non ha «Colorati»: Cotone con la temperatura a ${t}. I colori li proteggono la temperatura bassa, il detersivo per colorati e gli acchiappacolore, non il nome del programma.` };
+    case "scuri": return { name: "Jeans/Scuri", note: `Imposta ${t}.` };
+    case "sport": return outdoor
+      ? { name: "Capi outdoor", note: `Per membrane, softshell e pile: tanta acqua, movimento delicato e poca centrifuga. Imposta ${t}.` }
+      : { name: "Lava/Indossa", note: `La tua lavatrice non ha «Sport»: Lava/Indossa a ${t}, che tratta i sintetici con movimento moderato.` };
+    case "delicati": return { name: "Delicati", note: `Imposta ${t}.` };
+    case "lana": return { name: "Lana", note: "" };
+    case "mano": return { name: "Lana", note: "Il simbolo della mano accanto a Lana vuol dire che il programma va bene anche per i capi da lavare a mano, come la seta." };
+    case "piumini": return { name: "Delicati", note: "La tua lavatrice non ha «Piumini»: Delicati, poi un ciclo «Solo risciacquo» in più, perché la piuma trattiene il detersivo." };
+  }
+  return { name: P.name, note: "" };
+}
+
 const BASKET_CARDS = {
   bianchi: ["ossigeno", "sbiancanti", "sessanta"],
   chiari: ["sbiancanti", "acchiappacolore"],
@@ -506,6 +540,8 @@ function buildRecipe(items, keys, pantry, settings) {
   if (gov === "stinge" && keys.includes("scuri")) pk = "scuri";
   R.mixed = keys.length > 1;
   R.program = PROGRAMS[pk]; R.pk = pk;
+  const dp = dialProgram(pk, items, synth, T, settings);
+  R.progName = dp.name; R.progNote = dp.note;
   if (pk === "eco" && T > 40 && !R.igiene) { /* eco gestisce 40-60 */ }
 
   // centrifuga

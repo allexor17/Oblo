@@ -6,7 +6,7 @@
 const KEY = "oblo.v1";
 const DEF = {
   items: [], pantry: {}, seen: {}, load: [],
-  settings: { cap: 7, hard: "media", fh: "", tin: 15, price: 0.3, eco: true, quiz: false, planMode: "min" },
+  settings: { cap: 7, hard: "media", fh: "", tin: 15, price: 0.3, eco: true, quiz: false, planMode: "min", dial: "mio" },
   stats: { washes: 0, qOk: 0, qTot: 0 },
   labTab: "box", labCat: "tutti",
   timers: {}
@@ -212,7 +212,7 @@ function planHTML(map) {
     return `<li class="load"><div class="load-sw">${g.keys.map(swatch).join("")}</div><div class="load-body">
       <b>Lavatrice ${i + 1}${g.n > 1 ? ` · da dividere in ${g.n}` : ""}</b>
       <p class="load-names">${g.keys.map(k => BASKETS[k].name).join(" + ")}</p>
-      <p class="small">${R.program.name}, ${R.T}°C, ${R.spin} giri · ${fmt1(g.kg)} kg, ${Math.round(R.fill * 100)}% del cestello</p>
+      <p class="small">${R.progName}, ${R.T}°C, ${R.spin} giri · ${fmt1(g.kg)} kg, ${Math.round(R.fill * 100)}% del cestello</p>
       ${cm.length ? `<ul class="compro"><li><span class="lvl ${lvlCls(cm[0].level)}">${LEVEL_NAME[cm[0].level]}</span> ${cm[0].text}</li></ul>${cm.length > 1 ? `<details class="why"><summary>${cm.length === 2 ? "Un altro compromesso" : `Altri ${cm.length - 1} compromessi`}</summary><ul class="compro">${cm.slice(1).map(m => `<li><span class="lvl ${lvlCls(m.level)}">${LEVEL_NAME[m.level]}</span> ${m.text}</li>`).join("")}</ul></details>` : ""}` : `<p class="small muted">Nessun compromesso.</p>`}
       ${g.n > 1 ? `<p class="tiny">Non ci sta tutto in un cestello: dividi in ${g.n} lavaggi uguali.</p>` : R.fill < 0.3 ? `<p class="tiny">Carico leggero: se non ti serve subito, aspetta di avere più capi.</p>` : ""}
       ${guideChips(its, "Prima, o al posto della lavatrice:")}
@@ -407,6 +407,10 @@ function renderDispensa() {
     <div class="kv"><label for="tin">Acqua in ingresso<small>Circa 10°C d'inverno, 18–20°C d'estate</small></label><span class="row"><input class="num" id="tin" type="number" inputmode="decimal" data-inp="tin" value="${st.tin}"> °C</span></div>
     <div class="kv"><label for="price">Prezzo dell'energia<small>Euro al kWh, dalla bolletta</small></label><span class="row"><input class="num" id="price" type="number" step="0.01" inputmode="decimal" data-inp="price" value="${st.price}"> €</span></div>
     <div class="kv"><div class="k">Preferisci i programmi Eco<small>Più lunghi, meno energia</small></div><label class="switch"><input type="checkbox" data-act="eco" ${st.eco ? "checked" : ""} aria-label="Preferisci i programmi Eco"><span></span></label></div>
+    <div class="kv" style="grid-template-columns:1fr">
+      <div class="k">Nomi dei programmi<small>Con «Come la mia lavatrice» Oblò usa le scritte del tuo pannello: ${DIALS.mio.list.slice(0, 6).join(", ")}…</small></div>
+      <div class="chips">${Object.entries(DIALS).map(([k, v]) => `<button class="chip" type="button" data-act="dial" data-v="${k}" aria-pressed="${(st.dial || "generico") === k}">${v.name}</button>`).join("")}</div>
+    </div>
   </section>`;
 
   h += `<section class="panel"><h3>I tuoi prodotti</h3>`;
@@ -484,7 +488,7 @@ function renderLavatrice() {
   h += `<section class="machine" aria-label="La lavatrice">
     <div class="m-top">
       ${drawerHTML(R)}
-      <div class="display" aria-live="polite"><span class="t" id="dispT">${R.T}°</span><span class="p">${R.program.name}</span><span class="r" id="dispR">${R.spin} giri · ${R.program.dur}</span></div>
+      <div class="display" aria-live="polite"><span class="t" id="dispT">${R.T}°</span><span class="p">${R.progName}</span><span class="r" id="dispR">${R.spin} giri · ${R.program.dur}</span></div>
     </div>
     <div class="porthole-wrap">${portholeHTML(items)}</div>
     <div class="phase" id="phase"><div class="ph-title">Pronta</div><p>${R.kg ? `${fmt1(R.kg)} kg di bucato, ${R.litres} litri d'acqua circa.` : ""} Avvia la simulazione per vedere cosa succede dentro il cestello, fase per fase.</p><div class="progress"><i id="phaseBar"></i></div></div>
@@ -498,11 +502,11 @@ function renderLavatrice() {
   // programma, temperatura, giri
   h += `<section class="panel">
     <div class="big3">
-      <div class="prog"><small>Programma</small><b>${R.program.name}</b></div>
+      <div class="prog"><small>Programma</small><b>${R.progName}</b></div>
       <div><small>Temperatura</small><b>${R.T}°C</b></div>
       <div><small>Centrifuga</small><b>${R.spin}</b></div>
     </div>
-    <details class="why"><summary>Perché questo programma</summary><div class="why-body"><p>${R.program.why}</p>${R.program.alt ? `<p>Se la tua lavatrice non ce l'ha: <b>${R.program.alt}</b>. Durata indicativa: ${R.program.dur}.</p>` : ""}
+    <details class="why"><summary>Perché questo programma</summary><div class="why-body"><p>${R.program.why}</p>${R.progNote ? `<p><b>Sul tuo pannello:</b> ${R.progNote} Durata indicativa: ${R.program.dur}.</p>` : (S.settings.dial === "mio" ? `<p>Durata indicativa: ${R.program.dur}.</p>` : (R.program.alt ? `<p>Se la tua lavatrice non ce l'ha: <b>${R.program.alt}</b>. Durata indicativa: ${R.program.dur}.</p>` : ""))}
       <div><b class="small">Il cerchio di Sinner di questo programma</b><div class="sinner">${R.program.sinner.map((v, i) => `<div class="sr"><span>${SINNER_LABELS[i]}</span><span class="pips">${[1, 2, 3, 4, 5].map(n => `<i class="${n <= v ? "on" : ""}"></i>`).join("")}</span></div>`).join("")}</div></div>
       <p class="small">Quattro leve: chimica, temperatura, azione meccanica, tempo. Se una scende, le altre devono salire per lo stesso pulito. <button class="btn plain sm" type="button" data-act="card" data-id="sinner">Approfondisci</button></p></div></details>
     <details class="why"><summary>Perché ${R.T}°C</summary><div class="why-body">${R.tempWhy.map(t => `<p>${t}</p>`).join("")}
@@ -997,6 +1001,7 @@ document.addEventListener("click", e => {
       if (Q) { const it = Q.it; S.items.push(it); save(); closeSheet(); render(); toast(`${GARMENTS[it.g].name} nella cesta ${BASKETS[sortItem(it).basket].name}`); }
       break;
     // dispensa
+    case "dial": S.settings.dial = a.dataset.v; save(); render(); break;
     case "cap": S.settings.cap = Math.max(4, Math.min(14, S.settings.cap + (+a.dataset.d))); save(); render(); break;
     case "hard": S.settings.hard = a.dataset.v; S.settings.fh = ""; save(); render(); break;
     case "own": S.pantry[id] = { ...(S.pantry[id] || {}), have: !owned(S.pantry, id) }; save(); render(); if (owned(S.pantry, id)) toast(`${PRODUCTS[id].name} in dispensa.`); break;
