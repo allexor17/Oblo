@@ -1084,6 +1084,30 @@ const CARDS = [
     rel: ["test_colore", "acchiappacolore", "neri_grigi"]
   },
   {
+    id: "polipropilene", cat: "fibre",
+    title: "Il polipropilene, la fibra che galleggia",
+    ask: "Una maglietta tecnica in polipropilene esce dalla lavatrice quasi asciutta, ma dopo l'allenamento puzza più di quella di cotone. Come mai?",
+    opts: [
+      ["Il polipropilene assorbe il sudore e lo trattiene", false, "Al contrario: non ne assorbe quasi niente."],
+      ["Non assorbe acqua ma è oleofilo: trattiene il sebo, che i batteri trasformano in odore", true],
+      ["È un tessuto di scarsa qualità", false, "È una scelta tecnica precisa, con vantaggi e un difetto noto."]
+    ],
+    body: [
+      "Il polipropilene ha una densità di circa 0,91 g/cm³, meno dell'acqua: è l'unica fibra tessile comune che <b>galleggia</b>. Fatto solo di carbonio e idrogeno, non ha gruppi polari e non assorbe quasi niente: meno dello 0,1% del suo peso in acqua, contro il 7–8% del cotone.",
+      "Il sudore allora non entra nella fibra: scorre tra una fibra e l'altra per capillarità e passa allo strato sopra, dove evapora. Per questo la pelle resta asciutta e la maglia asciuga in pochi minuti.",
+      "Ma ciò che non ama l'acqua ama i grassi: il sebo si lega alla superficie, i lavaggi freddi non lo staccano del tutto e i batteri lo trasformano in acidi grassi a catena corta, che puzzano. Servono detersivo enzimatico con lipasi e un lavaggio presto dopo l'uso.",
+      "Due conseguenze pratiche della stessa chimica. Il polipropilene non si tinge in vasca, perché il colorante non ha a cosa legarsi: il colore si aggiunge alla plastica fusa, prima di filarla, ed è per questo che non stinge. E fonde intorno ai 165°C, prima di poliestere e nylon: asciugatrice, ferro e termosifone lo deformano."
+    ],
+    ana: "Il cotone è una spugna: beve il sudore, si appesantisce e ti raffredda. Il polipropilene è una grondaia: non trattiene niente e fa scorrere l'acqua altrove.",
+    pratica: [
+      "Lavala presto: il sebo lasciato giorni nella borsa della palestra diventa odore difficile da togliere.",
+      "30°C, detersivo enzimatico, niente ammorbidente.",
+      "Per l'odore ostinato: mezz'ora di ammollo tiepido con un cucchiaio di percarbonato, prima del lavaggio.",
+      "Niente asciugatrice, ferro o termosifone."
+    ],
+    rel: ["sport_odori", "tensioattivi", "enzimi"]
+  },
+  {
     id: "asciugamani_nuovi", cat: "trucchi",
     title: "Asciugamani nuovi che non asciugano",
     ask: "Un asciugamano appena comprato non assorbe. Perché?",

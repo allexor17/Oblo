@@ -193,6 +193,8 @@ function sortItem(it) {
     return out("sport", `${gname}: è nylon spalmato o trattato idrorepellente. L'ammorbidente lo riveste di un film che si lascia bagnare, e il calore rovina spalmatura e cuciture. 30°C, programma sport o outdoor, centrifuga bassa, zip chiuse, niente ammorbidente. Se l'acqua non fa più le goccioline, il trattamento si ravviva con un prodotto impermeabilizzante.`, ["idrorepellente", "nylon_colore"]);
   if (it.fiber === "membrana")
     return out("sport", "La membrana impermeabile e traspirante ha pori microscopici: l'ammorbidente li ostruisce e il calore danneggia le cuciture termosaldate. Programma sport o sintetici a 30°C, detersivo liquido, zip chiuse.");
+  if (it.fiber === "polipropilene")
+    return out("sport", `${gname} in polipropilene: è la più leggera tra le fibre tessili comuni, galleggia sull'acqua e non ne assorbe quasi niente. Per questo asciuga in un attimo, ma è anche oleofila: trattiene il sebo, e il sebo fa puzza. E fonde intorno ai 165°C, molto prima di poliestere e nylon: niente asciugatrice, niente ferro, niente termosifone. 30°C, detersivo enzimatico, niente ammorbidente, e lavala presto dopo l'allenamento.`, ["polipropilene", "sport_odori"]);
   if (has(it, "sport") || it.fiber === "tecnico") {
     if (it.g === "costume")
       return out("delicati", "Il costume è ricchissimo di elastan, che teme calore, cloro e sfregamenti: retina e programma delicati a 30°C, oppure a mano. Sciacqualo con acqua dolce appena torni dal mare o dalla piscina.");
@@ -265,6 +267,7 @@ function itemNotes(it, basket) {
   }
   if ((has(it, "retina") || it.flags.decorazioni) && !has(it, "lavabile")) n.push("Mettilo in una retina.");
   if (it.flags.elastan) n.push("Contiene elastan: al massimo 40°C, niente cloro, niente asciugatrice calda.");
+  if (it.fiber === "polipropilene") n.push("Polipropilene: niente asciugatrice, ferro o termosifone, perché fonde a bassa temperatura.");
   if (it.flags.stampa) n.push("Stampa: niente ferro sopra e al massimo 40°C.");
   if (it.label && /^\d+$/.test(it.label) && BASKETS[basket] && +it.label < BASKETS[basket].temp)
     n.push(`L'etichetta dice al massimo ${it.label}°C: in questo carico la temperatura scenderà per tutti.`);
@@ -366,7 +369,7 @@ function lintPair(a, b, ta, tb, map) {
 // Il nylon chiaro è una calamita per il colorante: i gruppi amminici della poliammide, carichi positivamente,
 // legano i coloranti anionici liberi nell'acqua, come un acchiappacolore. Con scuri e capi che stingono: da evitare.
 const DYE_MAGNET = ["poliammide", "membrana"];
-const isMagnet = it => DYE_MAGNET.includes(it.fiber) && ["bianco", "chiaro"].includes(colorGroup(it));
+const isMagnet = it => (DYE_MAGNET.includes(it.fiber) || !!(it.flags && it.flags.nylon)) && ["bianco", "chiaro"].includes(colorGroup(it));
 const MAGNET_DARK = "Nylon chiaro con scuri o capi che stingono: la poliammide lega il colorante libero come un acchiappacolore, e quando i foglietti sono saturi continua a prenderlo lei. Il grigio e il beige virano al giallastro o al grigio sporco, e non si torna indietro facilmente. Lavalo con i chiari.";
 const MAGNET_COL = "Nylon chiaro con capi colorati: la poliammide prende il colorante libero più di qualunque altra fibra. 30°C e due acchiappacolore, oppure lavalo con i chiari.";
 function magnetPair(a, b, ta, tb, map) {

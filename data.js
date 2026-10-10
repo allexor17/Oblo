@@ -1,22 +1,23 @@
 // Oblò · dati: capi, fibre, colori, ceste, prodotti, macchie, simboli delle etichette
 
 const FIBERS = {
-  cotone:     { name: "Cotone",                       fam: "cellulosa naturale",  maxT: 95, spin: 1400 },
-  lino:       { name: "Lino",                         fam: "cellulosa naturale",  maxT: 60, spin: 1000 },
-  denim:      { name: "Denim (cotone)",               fam: "cellulosa naturale",  maxT: 40, spin: 1000 },
-  misto:      { name: "Misto cotone-poliestere",      fam: "misto",               maxT: 60, spin: 1000 },
-  poliestere: { name: "Poliestere",                   fam: "sintetica",           maxT: 40, spin: 800 },
-  poliammide: { name: "Nylon / poliammide",           fam: "sintetica",           maxT: 40, spin: 800 },
-  acrilico:   { name: "Acrilico",                     fam: "sintetica",           maxT: 30, spin: 800 },
-  tecnico:    { name: "Tecnico sportivo",             fam: "sintetica",           maxT: 40, spin: 800 },
-  viscosa:    { name: "Viscosa / modal / bambù",      fam: "cellulosa rigenerata", maxT: 30, spin: 600 },
-  lyocell:    { name: "Lyocell / Tencel",             fam: "cellulosa rigenerata", maxT: 40, spin: 800 },
-  lana:       { name: "Lana",                         fam: "proteica (cheratina)", maxT: 30, spin: 600 },
-  cashmere:   { name: "Cashmere / alpaca / angora",   fam: "proteica (cheratina)", maxT: 30, spin: 400 },
-  seta:       { name: "Seta",                         fam: "proteica (fibroina)",  maxT: 30, spin: 400 },
-  piuma:      { name: "Piuma (imbottitura)",          fam: "proteica (cheratina)", maxT: 30, spin: 600 },
-  membrana:   { name: "Membrana impermeabile",        fam: "sintetica tecnica",    maxT: 30, spin: 600 },
-  pelle:      { name: "Pelle / scamosciato",          fam: "pelle animale",        maxT: 0,  spin: 0 }
+  cotone:     { name: "Cotone",                       code: "CO", fam: "cellulosa naturale",  maxT: 95, spin: 1400 },
+  lino:       { name: "Lino",                         code: "LI", fam: "cellulosa naturale",  maxT: 60, spin: 1000 },
+  denim:      { name: "Denim (cotone)",               code: "CO", fam: "cellulosa naturale",  maxT: 40, spin: 1000 },
+  misto:      { name: "Misto cotone-poliestere",      code: "CO + PES", fam: "misto",               maxT: 60, spin: 1000 },
+  poliestere: { name: "Poliestere",                   code: "PES", fam: "sintetica",           maxT: 40, spin: 800 },
+  poliammide: { name: "Nylon / poliammide",           code: "PA", fam: "sintetica",           maxT: 40, spin: 800 },
+  polipropilene: { name: "Polipropilene", code: "PP", fam: "sintetica", maxT: 30, spin: 800 },
+  acrilico:   { name: "Acrilico",                     code: "PAN", fam: "sintetica",           maxT: 30, spin: 800 },
+  tecnico:    { name: "Tecnico sportivo",             code: "", fam: "sintetica",           maxT: 40, spin: 800 },
+  viscosa:    { name: "Viscosa / modal / bambù",      code: "CV · CMD", fam: "cellulosa rigenerata", maxT: 30, spin: 600 },
+  lyocell:    { name: "Lyocell / Tencel",             code: "CLY", fam: "cellulosa rigenerata", maxT: 40, spin: 800 },
+  lana:       { name: "Lana",                         code: "WO", fam: "proteica (cheratina)", maxT: 30, spin: 600 },
+  cashmere:   { name: "Cashmere / alpaca / angora",   code: "WS", fam: "proteica (cheratina)", maxT: 30, spin: 400 },
+  seta:       { name: "Seta",                         code: "SE", fam: "proteica (fibroina)",  maxT: 30, spin: 400 },
+  piuma:      { name: "Piuma (imbottitura)",          code: "", fam: "proteica (cheratina)", maxT: 30, spin: 600 },
+  membrana:   { name: "Membrana impermeabile",        code: "", fam: "sintetica tecnica",    maxT: 30, spin: 600 },
+  pelle:      { name: "Pelle / scamosciato",          code: "", fam: "pelle animale",        maxT: 0,  spin: 0 }
 };
 
 // tag: rovescio · bottoni · abbottona · zip · retina · piano · igiene · spugna · cede · attira · sport · lingerie · aparte · noAmm · chiudi · impermeabile · imbottito · visiera
