@@ -52,8 +52,8 @@ const fmt2 = n => n.toLocaleString("it-IT", { maximumFractionDigits: 2, minimumF
 const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
 const qtyOf = its => sum(its, it => it.qty || 1);
 const cap1 = s => s.charAt(0).toUpperCase() + s.slice(1);
-function colorDot(colorId, cls = "cdot") {
-  const C = COLORS[colorId];
+function colorDot(x, cls = "cdot") {
+  const C = typeof x === "object" ? colorOf(x) : COLORS[x];
   if (!C) return "";
   return C.hex.startsWith("pattern") ? `<span class="${cls} ${C.hex}"></span>` : `<span class="${cls}" style="--c:${C.hex}"></span>`;
 }
@@ -176,13 +176,13 @@ function basketCard(k, its) {
 }
 function itemChip(it) {
   const G = GARMENTS[it.g];
-  return `<button class="item-chip" type="button" data-act="item" data-id="${it.id}">${colorDot(it.color)}<span class="em" aria-hidden="true">${G.e}</span>${G.name}${(it.qty || 1) > 1 ? ` <span class="q">×${it.qty}</span>` : ""}</button>`;
+  return `<button class="item-chip" type="button" data-act="item" data-id="${it.id}">${colorDot(it)}<span class="em" aria-hidden="true">${G.e}</span>${G.name}${(it.qty || 1) > 1 ? ` <span class="q">×${it.qty}</span>` : ""}</button>`;
 }
 function basketWarnings(k, its) {
   const w = [];
   const cede = its.filter(it => has(it, "cede")), attira = its.filter(it => has(it, "attira"));
   if (cede.length && attira.length) w.push(`${cap1(names(cede))} perde pelucchi e ${names(attira)} li attira: rovescia i secondi o lavali in due volte.`);
-  const magnets = its.filter(isMagnet), darker = its.filter(it => !isMagnet(it) && (colorGroup(it) === "scuro" || (it.flags.nuovo && COLORS[it.color].hot)));
+  const magnets = its.filter(isMagnet), darker = its.filter(it => !isMagnet(it) && (colorGroup(it) === "scuro" || (it.flags.nuovo && colorOf(it).hot)));
   if (magnets.length && darker.length) w.push(`${cap1(names(magnets))} è nylon chiaro e prende il colore di ${names(darker)}: lavalo con i chiari, o da solo.`);
   if (k === "stinge" && new Set(its.map(it => it.color)).size > 1) w.push("Qui ci sono colori diversi: i capi che stingono vanno lavati da soli o solo con capi dello stesso colore.");
   if (k === "piumini" && qtyOf(its) > 1) w.push("Un piumino alla volta: ha bisogno di spazio per gonfiarsi.");
@@ -261,6 +261,7 @@ function blankDraft() {
 function openAdd(id) {
   const base = id && S.items.find(it => it.id === id);
   D = base ? { ...clone({ ...base, _b: undefined, _r: undefined }), pickG: false } : blankDraft();
+  PHOTO = null;
   renderAdd(false);
 }
 const LABEL_OPTS = [[null, "Non so"], ["30", "30°"], ["40", "40°"], ["60", "60°"], ["95", "95°"], ["mano", "A mano"], ["no", "Non lavare"]];
@@ -274,10 +275,14 @@ function renderAdd(keep = true) {
     h += `<div class="group row"><span class="chip" aria-pressed="true"><span class="em" aria-hidden="true">${G.e}</span>${G.name}</span><button class="btn plain sm" type="button" data-act="d-regarment">Cambia</button></div>`;
   }
   if (G) {
-    const C = D.color && COLORS[D.color];
+    const C = D.color ? colorOf(D) : null;
+    const custom = D.color === "custom";
+    const pickVal = custom ? D.hex : (C && C.hex && !C.hex.startsWith("pattern") ? C.hex.toLowerCase() : "#7f9cc0");
     h += `<div class="group"><h4>Colore</h4><div class="swatches">${Object.entries(COLORS).map(([k, c]) =>
-      `<button class="sw ${c.hex.startsWith("pattern") ? "sw-" + c.hex : ""}" type="button" style="${c.hex.startsWith("pattern") ? "" : `--c:${c.hex}`}" data-act="d-color" data-v="${k}" aria-pressed="${D.color === k}" aria-label="${c.name}" title="${c.name}"></button>`).join("")}</div>
-      <p class="sw-label">${C ? `<b>${C.name}</b> · gruppo ${({ bianco: "bianchi", chiaro: "chiari", colorato: "colorati", scuro: "scuri" })[C.group]}${C.hot ? " · tende a stingere" : ""}` : "Tocca il colore più vicino."}</p></div>`;
+      `<button class="sw ${c.hex.startsWith("pattern") ? "sw-" + c.hex : ""}" type="button" style="${c.hex.startsWith("pattern") ? "" : `--c:${c.hex}`}" data-act="d-color" data-v="${k}" aria-pressed="${D.color === k}" aria-label="${c.name}" title="${c.name}"></button>`).join("")}<label class="sw sw-custom${custom ? " is-set" : ""}" style="${custom ? `--c:${D.hex}` : ""}" aria-pressed="${custom}" title="Colore esatto"><input type="color" id="pickColor" value="${pickVal}" aria-label="Scegli il colore esatto"></label></div>
+      <p class="sw-label" id="swLabel">${colorLabel(C)}</p>
+      <div class="row color-tools"><label class="btn plain sm photo-btn"><span aria-hidden="true">📷</span> Prendi il colore da una foto<input type="file" accept="image/*" id="pickPhoto" aria-label="Prendi il colore da una foto"></label></div>
+      <div class="photo-pick" id="photoPick" hidden><canvas id="photoCanvas" aria-label="Foto del capo: tocca per leggere il colore"></canvas><p class="hint">Tocca il capo nella foto: Oblò legge il colore in quel punto. Scatta alla luce del giorno, senza flash.</p></div></div>`;
     h += `<div class="group"><h4>Tessuto</h4><p class="hint">Lo trovi sull'etichetta cucita all'interno. Se è misto, scegli la fibra più delicata: comanda lei.</p>
       <div class="chips">${Object.entries(FIBERS).map(([k, f]) => `<button class="chip" type="button" data-act="d-fiber" data-v="${k}" aria-pressed="${D.fiber === k}">${f.name}</button>`).join("")}</div></div>`;
     h += `<div class="group"><h4>Etichetta: la vaschetta</h4><p class="hint">Il numero nella vaschetta è la temperatura massima.</p>
@@ -292,6 +297,62 @@ function renderAdd(keep = true) {
   const ready = D.g && D.color && D.fiber;
   h += `<div class="sheet-foot"><button class="btn wide" type="button" data-act="d-save" ${ready ? "" : "disabled"}>${D.id ? "Salva le modifiche" : !G ? "Scegli il capo" : !D.color ? "Scegli il colore" : "Metti nel cesto"}</button></div>`;
   openSheet(h, keep);
+  if (PHOTO && G) { const pp = $("#photoPick"); if (pp) { pp.hidden = false; drawPhoto(PHOTO_MARK); } }
+}
+// Colore esatto: tavolozza nativa o lettura da una foto
+const GROUP_PLURAL = { bianco: "bianchi", chiaro: "chiari", colorato: "colorati", scuro: "scuri" };
+function colorLabel(C) {
+  if (!C) return "Tocca il colore più vicino, oppure l'arcobaleno per scegliere quello esatto.";
+  return `<b>${C.name}</b>${C.custom ? ` <span class="tiny">${C.hex.toUpperCase()}</span>` : ""} · gruppo ${GROUP_PLURAL[C.group]}${C.hot ? " · tende a stingere" : ""}`
+    + (C.custom ? `<br><span class="tiny">Luminosità percepita ${Math.round(C.lch.L)} su 100 · saturazione ${Math.round(C.lch.C)}</span>` : "");
+}
+function setCustomColor(hex) {
+  if (!D) return;
+  D.color = "custom"; D.hex = hex.toLowerCase();
+  const sh = $("#sheet"); if (!sh) return;
+  sh.querySelectorAll('.swatches [data-act="d-color"]').forEach(b => b.setAttribute("aria-pressed", "false"));
+  const cs = sh.querySelector(".sw-custom");
+  if (cs) { cs.style.setProperty("--c", D.hex); cs.classList.add("is-set"); cs.setAttribute("aria-pressed", "true"); }
+  const inp = $("#pickColor"); if (inp && inp.value !== D.hex) inp.value = D.hex;
+  const lab = $("#swLabel"); if (lab) lab.innerHTML = colorLabel(colorOf(D));
+  const save = sh.querySelector('[data-act="d-save"]');
+  if (save && D.g && D.fiber) { save.disabled = false; save.textContent = D.id ? "Salva le modifiche" : "Metti nel cesto"; }
+}
+let PHOTO = null, PHOTO_MARK = null;
+function loadPhoto(file) {
+  const url = URL.createObjectURL(file), img = new Image();
+  img.onload = () => { PHOTO = img; PHOTO_MARK = null; const pp = $("#photoPick"); if (pp) pp.hidden = false; drawPhoto(); };
+  img.onerror = () => { URL.revokeObjectURL(url); toast("Non riesco ad aprire questa foto."); };
+  img.src = url;
+}
+function drawPhoto(mark) {
+  const cv = $("#photoCanvas"); if (!cv || !PHOTO) return;
+  const W = cv.parentElement.clientWidth || 320;
+  const k = Math.min(W / PHOTO.naturalWidth, 380 / PHOTO.naturalHeight, 1);
+  const w = Math.max(1, Math.round(PHOTO.naturalWidth * k)), h = Math.max(1, Math.round(PHOTO.naturalHeight * k));
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.width = w + "px"; cv.style.height = h + "px";
+  const ctx = cv.getContext("2d", { willReadFrequently: true });
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.drawImage(PHOTO, 0, 0, w, h);
+  if (mark) {
+    ctx.lineWidth = 3; ctx.strokeStyle = "#fff"; ctx.beginPath(); ctx.arc(mark.x, mark.y, 11, 0, Math.PI * 2); ctx.stroke();
+    ctx.lineWidth = 1.5; ctx.strokeStyle = "#14203d"; ctx.beginPath(); ctx.arc(mark.x, mark.y, 13.5, 0, Math.PI * 2); ctx.stroke();
+  }
+  cv.onclick = samplePhoto;
+}
+function samplePhoto(ev) {
+  const cv = ev.currentTarget, r = cv.getBoundingClientRect();
+  const x = ev.clientX - r.left, y = ev.clientY - r.top;
+  drawPhoto();
+  const d = cv.width / r.width, s = Math.max(2, Math.round(4 * d));
+  const cx = Math.round(x * d), cy = Math.round(y * d);
+  const x0 = Math.max(0, cx - s), y0 = Math.max(0, cy - s);
+  const px = cv.getContext("2d").getImageData(x0, y0, Math.min(2 * s + 1, cv.width - x0), Math.min(2 * s + 1, cv.height - y0)).data;
+  let R = 0, G = 0, B = 0, n = 0;
+  for (let i = 0; i < px.length; i += 4) { R += px[i]; G += px[i + 1]; B += px[i + 2]; n++; }
+  if (!n) return;
+  setCustomColor("#" + [R, G, B].map(v => Math.round(v / n).toString(16).padStart(2, "0")).join(""));
+  PHOTO_MARK = { x, y }; drawPhoto(PHOTO_MARK);
 }
 function miniTub(v) {
   return `<svg viewBox="0 0 40 40" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13 L8.5 33 Q9 35 11 35 L29 35 Q31 35 31.5 33 L35 13"/><path d="M5 13 q3.75 -4 7.5 0 t7.5 0 t7.5 0 t7.5 0"/></svg>`;
@@ -322,7 +383,7 @@ function openQuiz(it) {
   renderQuiz();
 }
 function describe(it) {
-  const G = GARMENTS[it.g], C = COLORS[it.color], F = FIBERS[it.fiber];
+  const G = GARMENTS[it.g], C = colorOf(it), F = FIBERS[it.fiber];
   const ex = [];
   if (it.flags.nuovo) ex.push("nuovo");
   if (it.flags.elastan) ex.push("con elastan");
@@ -376,7 +437,7 @@ function openItem(id) {
   const r = sortItem(it), G = GARMENTS[it.g], B = BASKETS[r.basket];
   let h = sheetHead(`<span aria-hidden="true">${G.e}</span> ${G.name}${(it.qty || 1) > 1 ? ` ×${it.qty}` : ""}`);
   h += `<div class="chips">
-    <span class="chip">${colorDot(it.color)}${COLORS[it.color].name}</span>
+    <span class="chip">${colorDot(it)}${colorOf(it).name}</span>
     <span class="chip">${FIBERS[it.fiber].name}</span>
     ${it.label ? `<span class="chip">${it.label === "mano" ? "A mano" : it.label === "no" ? "Non lavare" : `Max ${it.label}°C`}</span>` : ""}
     <span class="chip">${SOIL[it.flags.sporco || "normale"].name}</span>
@@ -589,7 +650,7 @@ function portholeHTML(items) {
   const pieces = [];
   for (const it of items) for (let i = 0; i < Math.min(it.qty || 1, 3); i++) pieces.push(it);
   const cl = pieces.slice(0, SLOTS.length).map((it, i) => {
-    const C = COLORS[it.color];
+    const C = colorOf(it);
     const [x, y] = SLOTS[i];
     const pat = C.hex.startsWith("pattern") ? C.hex : "";
     return `<span class="cloth ${pat}" style="left:${x - 15}%;top:${y - 10}%;--r:${(i * 47) % 180 - 90}deg;${pat ? "" : `--c:${C.hex}`}"></span>`;
@@ -989,7 +1050,7 @@ document.addEventListener("click", e => {
     // bozza
     case "d-g": D.g = a.dataset.v; D.fiber = GARMENTS[D.g].fiber; D.pickG = false; D.flags.elastan = ["leggings", "sportmaglia", "costume", "topsport", "termica"].includes(D.g); if (GARMENTS[D.g].stain && !D.id) D.flags.macchia = GARMENTS[D.g].stain; renderAdd(false); break;
     case "d-regarment": D.pickG = true; renderAdd(false); break;
-    case "d-color": D.color = a.dataset.v; renderAdd(); break;
+    case "d-color": D.color = a.dataset.v; delete D.hex; renderAdd(); break;
     case "d-fiber": D.fiber = a.dataset.v; renderAdd(); break;
     case "d-label": D.label = a.dataset.v || null; renderAdd(); break;
     case "d-soil": D.flags.sporco = a.dataset.v; renderAdd(); break;
@@ -1064,6 +1125,8 @@ function importBackup(file) {
 document.addEventListener("change", e => {
   const el = e.target;
   if (el.id === "importOblo") { if (el.files[0]) importBackup(el.files[0]); el.value = ""; return; }
+  if (el.id === "pickPhoto") { if (el.files[0]) loadPhoto(el.files[0]); el.value = ""; return; }
+  if (el.id === "pickColor") { setCustomColor(el.value); return; }
   const act = el.dataset.act, inp = el.dataset.inp;
   if (act === "quiz") { S.settings.quiz = el.checked; save(); render(); return; }
   if (act === "eco") { S.settings.eco = el.checked; save(); return; }
@@ -1079,7 +1142,7 @@ document.addEventListener("change", e => {
   if (inp === "price") { const v = parseFloat(String(el.value).replace(",", ".")); if (!isNaN(v)) S.settings.price = Math.max(0, Math.min(2, v)); save(); return; }
   if (inp === "dose") { const v = parseFloat(String(el.value).replace(",", ".")); S.pantry[el.dataset.id] = { ...(S.pantry[el.dataset.id] || {}), dose: isNaN(v) ? "" : v }; save(); return; }
 });
-document.addEventListener("input", e => { if (e.target.dataset.calc) updateCalc(); });
+document.addEventListener("input", e => { if (e.target.id === "pickColor") { setCustomColor(e.target.value); return; } if (e.target.dataset.calc) updateCalc(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#sheetWrap").hidden) closeSheet(); });
 
 // ───────────────────────────── AVVIO ─────────────────────────────

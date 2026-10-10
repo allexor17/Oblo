@@ -80,7 +80,53 @@ const BASKET_CARDS = {
 };
 
 const has = (it, tag) => (GARMENTS[it.g]?.tags || []).includes(tag);
-const colorGroup = it => COLORS[it.color]?.group || "colorato";
+
+// ───────────────────────────── COLORE ESATTO ─────────────────────────────
+// Dal codice esadecimale allo spazio CIELAB, costruito sulla percezione umana:
+// L* è la luminosità percepita (0 nero, 100 bianco), C* la saturazione, h la tinta in gradi.
+function hexLch(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const lin = c => (c /= 255) <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  const r = lin(n >> 16 & 255), g = lin(n >> 8 & 255), b = lin(n & 255);
+  const X = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047, Y = r * 0.2126 + g * 0.7152 + b * 0.0722, Z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
+  const f = t => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+  const fx = f(X), fy = f(Y), fz = f(Z);
+  const L = 116 * fy - 16, A = 500 * (fx - fy), B = 200 * (fy - fz);
+  let h = Math.atan2(B, A) * 180 / Math.PI; if (h < 0) h += 360;
+  return { L, C: Math.hypot(A, B), h };
+}
+function hexName({ L, C, h }) {
+  if (C < 8) return L >= 95 && C <= 4 ? "Bianco" : L >= 80 ? (C >= 4 && h > 40 && h < 120 ? "Panna" : "Grigio chiaro") : L >= 50 ? "Grigio" : L >= 20 ? "Grigio scuro" : "Nero";
+  if (C < 38 && h >= 40 && h < 100) return L >= 88 ? "Panna" : L >= 70 ? "Beige" : L >= 45 ? "Cammello" : "Marrone";
+  const by = (light, mid, dark, lt = 72, dk = 40) => L >= lt ? light : L < dk ? dark : mid;
+  if (h >= 330 && h < 355) return by("Rosa", "Fucsia", "Prugna");
+  if (h >= 355 || h < 40) return by("Rosa", "Rosso", "Bordeaux");
+  if (h < 70) return by("Pesca", "Arancio", "Ruggine", 75, 45);
+  if (h < 100) return L >= 75 ? "Giallo" : L < 45 ? "Oliva scuro" : "Senape";
+  if (h < 140) return C < 30 ? by("Verde salvia", "Verde salvia", "Verde militare", 75, 45) : by("Verde chiaro", "Verde oliva", "Verde militare", 75, 45);
+  if (h < 185) return by("Verde menta", "Verde", "Verde scuro", 75, 42);
+  if (h < 230) return by("Acquamarina", "Turchese", "Petrolio", 75, 42);
+  if (h < 275) return by("Azzurro chiaro", "Azzurro", "Blu", 75, 42);
+  if (h < 300) return by("Lavanda", "Blu", "Blu scuro", 75, 30);
+  return by("Lilla", "Viola", "Viola scuro", 70, 40);
+}
+const HEX_CACHE = {};
+function classifyHex(hex) {
+  hex = (hex || "#888888").toLowerCase();
+  if (HEX_CACHE[hex]) return HEX_CACHE[hex];
+  const c = hexLch(hex);
+  const group = c.L >= 95 && c.C <= 4 ? "bianco" : c.L >= 70 && c.C < 30 ? "chiaro" : c.L < 42 ? "scuro" : "colorato";
+  // rossi, aranci e fucsia saturi (e i rossi scuri) sono i coloranti che stingono di più
+  const hot = (c.h >= 335 || c.h <= 65) && c.C >= (c.L < 42 ? 33 : 45);
+  return (HEX_CACHE[hex] = { name: hexName(c), hex, group, hot, custom: true, lch: c });
+}
+function colorOf(it) {
+  if (it.color !== "custom") return COLORS[it.color] || { name: "Colore", hex: "#888888", group: "colorato" };
+  const c = classifyHex(it.hex);
+  // l'indaco del denim stinge qualunque sia la sua tonalità
+  return it.fiber === "denim" && c.group !== "bianco" && !c.hot ? { ...c, hot: true } : c;
+}
+const colorGroup = it => colorOf(it).group;
 const lc = s => s.charAt(0).toLowerCase() + s.slice(1);
 const cap0 = s => s.charAt(0).toUpperCase() + s.slice(1);
 const itemW = it => (GARMENTS[it.g]?.w || 200) * (it.qty || 1);
@@ -104,7 +150,7 @@ const snapDown = (v, steps) => steps.filter(s => s <= v).pop() ?? steps[0];
 
 // ───────────────────────────── SMISTAMENTO ─────────────────────────────
 function sortItem(it) {
-  const G = GARMENTS[it.g], F = FIBERS[it.fiber], C = COLORS[it.color];
+  const G = GARMENTS[it.g], F = FIBERS[it.fiber], C = colorOf(it);
   const grp = colorGroup(it);
   const gname = G.name, col = lc(C.name), fib = lc(F.name);
   const out = (basket, why, cards) => ({ basket, why, notes: itemNotes(it, basket), cards: cards || BASKET_CARDS[basket] || [] });
@@ -634,7 +680,7 @@ function buildRecipe(items, keys, pantry, settings) {
     if (owned(pantry, "bicarbonato")) add("bicarbonato", "si", "30 g (2 cucchiai)", "drum", "Base debole: neutralizza gli acidi grassi volatili del sudore che danno l'odore di palestra.");
   }
   const groups = new Set(items.map(colorGroup));
-  const needCatcher = ["colorati", "scuri", "stinge", "spugna_col"].includes(gov) || keys.length > 1 || items.some(it => it.flags.nuovo && colorGroup(it) !== "bianco") || items.some(it => COLORS[it.color].hot);
+  const needCatcher = ["colorati", "scuri", "stinge", "spugna_col"].includes(gov) || keys.length > 1 || items.some(it => it.flags.nuovo && colorGroup(it) !== "bianco") || items.some(it => colorOf(it).hot);
   if (needCatcher && !["lana", "mano", "piumini", "bianchi", "spugna_chiara"].includes(gov)) {
     const n = (gov === "stinge" || groups.size > 1) ? 2 : 1;
     if (owned(pantry, "acchiappacolore")) add("acchiappacolore", gov === "stinge" || keys.length > 1 ? "si" : "facoltativo", `${n} ${n === 1 ? "foglio" : "fogli"}`, "drum", "Polimeri cationici che catturano il colorante libero prima che si depositi. Guarda il colore del foglio a fine ciclo: ti dice quanto colore c'era in acqua.");

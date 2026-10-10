@@ -1062,6 +1062,28 @@ const CARDS = [
     rel: ["ammorbidente", "tensioattivi", "sport_odori"]
   },
   {
+    id: "chiaro_scuro", cat: "fisica",
+    title: "Perché il giallo è «chiaro» e il blu è «scuro»",
+    ask: "Un giallo vivo e un blu royal sono saturi più o meno allo stesso modo. Perché Oblò mette il blu tra gli scuri e il giallo no?",
+    opts: [
+      ["Il blu contiene più colorante", false, "La quantità di colorante non si vede a occhio: conta quanta luce riflette il capo e come la percepisci."],
+      ["L'occhio percepisce il giallo molto più luminoso del blu", true],
+      ["È una convenzione dei produttori", false, "C'è una ragione fisiologica precisa."]
+    ],
+    body: [
+      "La luminosità che percepiamo non è uguale per tutte le lunghezze d'onda: di giorno l'occhio è più sensibile intorno ai 555 nm, tra il verde e il giallo, e pochissimo nel blu. È la curva di sensibilità fotopica.",
+      "Il motivo sta nei coni: la sensazione di luminosità nasce quasi tutta dai coni L e M, sensibili alle lunghezze d'onda lunghe e medie, che insieme vedono benissimo il giallo. I coni S, quelli del blu, sono pochi e pesano poco sulla luminosità.",
+      "Per questo, quando scegli un colore esatto, Oblò non usa i valori RGB dello schermo ma lo spazio <b>CIELAB</b>, costruito sulla percezione: L* è la luminosità percepita, da 0 (nero) a 100 (bianco), C* la saturazione. Bianchi: L* altissima e saturazione quasi zero. Chiari: L* sopra 70 e poca saturazione. Scuri: L* sotto 42. Il resto è colorato.",
+      "Rossi, aranci e fucsia molto saturi, e i rossi scuri, vengono segnati come colori che tendono a stingere: i coloranti rossi sono spesso tra i meno solidi al lavaggio."
+    ],
+    ana: "Fotografa in bianco e nero un maglione giallo e uno blu dello stesso brillante: il giallo esce quasi bianco, il blu quasi nero. Il bianco e nero mostra solo la luminosità, cioè L*.",
+    pratica: [
+      "Indecisa tra chiari e colorati? Guarda la foto del capo in bianco e nero: se esce chiaro, è chiaro.",
+      "Per prendere il colore da una foto, scatta di giorno, vicino a una finestra e senza flash: la luce artificiale sposta i colori verso il giallo."
+    ],
+    rel: ["test_colore", "acchiappacolore", "neri_grigi"]
+  },
+  {
     id: "asciugamani_nuovi", cat: "trucchi",
     title: "Asciugamani nuovi che non asciugano",
     ask: "Un asciugamano appena comprato non assorbe. Perché?",
