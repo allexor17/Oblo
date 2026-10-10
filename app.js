@@ -283,7 +283,7 @@ function renderAdd(keep = true) {
       <p class="sw-label" id="swLabel">${colorLabel(C)}</p>
       <div class="row color-tools"><label class="btn plain sm photo-btn"><span aria-hidden="true">📷</span> Prendi il colore da una foto<input type="file" accept="image/*" id="pickPhoto" aria-label="Prendi il colore da una foto"></label></div>
       <div class="photo-pick" id="photoPick" hidden><canvas id="photoCanvas" aria-label="Foto del capo: tocca per leggere il colore"></canvas><p class="hint">Tocca il capo nella foto: Oblò legge il colore in quel punto. Scatta alla luce del giorno, senza flash.</p></div></div>`;
-    h += `<div class="group"><h4>Tessuto</h4><p class="hint">Lo trovi sull'etichetta cucita all'interno, spesso con le sigle: CO cotone, PES poliestere, PA nylon, PP polipropilene, EL elastan. Se è misto, scegli la fibra più delicata, cioè quella che regge meno calore: comanda lei. Elastan e nylon segnali sotto, nei dettagli.</p>
+    h += `<div class="group"><h4>Tessuto</h4><p class="hint">Lo trovi sull'etichetta cucita all'interno, spesso con le sigle: CO cotone, PES poliestere, PA nylon, PP polipropilene, EL elastan. Se è misto, scegli la fibra più delicata, cioè quella che regge meno calore: comanda lei. Elastan e nylon segnali sotto, nei dettagli. <button class="link-inline" type="button" data-act="fibre-vocab">Vocabolario delle sigle</button></p>
       <div class="chips">${Object.entries(FIBERS).map(([k, f]) => `<button class="chip" type="button" data-act="d-fiber" data-v="${k}" aria-pressed="${D.fiber === k}">${f.name}${f.code ? ` <span class="tiny">${f.code}</span>` : ""}</button>`).join("")}</div></div>`;
     h += `<div class="group"><h4>Etichetta: la vaschetta</h4><p class="hint">Il numero nella vaschetta è la temperatura massima.</p>
       <div class="chips">${LABEL_OPTS.map(([v, t]) => `<button class="chip" type="button" data-act="d-label" data-v="${v ?? ""}" aria-pressed="${(D.label ?? "") === (v ?? "")}">${v && v !== "no" ? miniTub(v) : ""}${t}</button>`).join("")}</div></div>`;
@@ -857,10 +857,11 @@ setInterval(() => {
 
 // ───────────────────────────── LABORATORIO ─────────────────────────────
 function renderLab() {
-  const tabs = [["box", "Box"], ["macchie", "Macchie"], ["etichette", "Etichette"], ["calcoli", "Calcoli"]];
+  const tabs = [["box", "Box"], ["fibre", "Fibre"], ["macchie", "Macchie"], ["etichette", "Etichette"], ["calcoli", "Calcoli"]];
   let h = `<div class="section-head"><div><h2>Laboratorio</h2><p class="muted">Prima ragiona, poi scopri la spiegazione.</p></div></div>`;
-  h += `<div class="seg" role="group" aria-label="Sezioni del laboratorio">${tabs.map(([k, t]) => `<button type="button" data-act="labtab" data-v="${k}" aria-pressed="${S.labTab === k}">${t}</button>`).join("")}</div>`;
+  h += `<div class="seg seg5" role="group" aria-label="Sezioni del laboratorio">${tabs.map(([k, t]) => `<button type="button" data-act="labtab" data-v="${k}" aria-pressed="${S.labTab === k}">${t}</button>`).join("")}</div>`;
   if (S.labTab === "box") h += labBox();
+  else if (S.labTab === "fibre") h += labFibers();
   else if (S.labTab === "macchie") h += labStains();
   else if (S.labTab === "etichette") h += labLabels();
   else h += labCalc();
@@ -904,6 +905,58 @@ function revealCard() {
   if (!S.seen[CARD.id]) { S.seen[CARD.id] = true; save(); }
   renderCard(true);
   render();
+}
+// Vocabolario delle fibre: sigle, cosa temono, impatto ambientale
+function labFibers() {
+  let h = `<div class="panel stack fv-intro">
+    <h3>Vocabolario delle fibre</h3>
+    <p class="small">Le sigle vengono dalle norme internazionali e le trovi soprattutto sulle etichette dei marchi sportivi: <b>PP + EL + PA</b> vuol dire polipropilene, elastan e nylon.</p>
+    <details class="why"><summary>Prima di leggere le pagelle: cotone o poliestere?</summary><div class="why-body">
+      <p>Secondo te è più ecologica una maglietta di cotone o una di poliestere? Prova a rispondere prima di aprire.</p>
+      <p>Dipende da cosa misuri. Sul cotone convenzionale pesano acqua e pesticidi, sul poliestere petrolio e microplastiche. E soprattutto dalla <b>durata</b>: l'impatto della produzione si divide per il numero di volte che indossi il capo. Se lo porti il doppio delle volte, ogni uso costa la metà. Il capo più ecologico è quasi sempre quello che hai già.</p>
+      <p>Il giudizio qui sotto è una stima per chilo di fibra, nella versione più comune: <b>impatto basso, medio o alto</b>. Certificazioni, riciclo e una vita lunga lo spostano di un gradino.</p>
+    </div></details>
+    <input class="search" id="fiberSearch" type="search" inputmode="search" autocomplete="off" placeholder="Cerca una sigla o un nome: PA, lino, Tencel…" aria-label="Cerca una fibra">
+  </div>`;
+  for (const fam of FIBER_FAMILIES) {
+    const items = FIBER_VOCAB.filter(v => v.fam === fam.id);
+    h += `<section class="fv-family stack" data-fam="${fam.id}"><div><h3>${fam.name}</h3><p class="small muted">${fam.sub}</p></div>`;
+    h += items.map(v => {
+      const q = [...v.codes, v.name, v.what].join(" ").toLowerCase();
+      const app = v.app ? `<p class="tiny">In Oblò: scegli «${FIBERS[v.app].name}»</p>` : v.appFlag ? `<p class="tiny">In Oblò: spunta «${v.appFlag}» tra i dettagli del capo</p>` : "";
+      return `<details class="fv-item" data-q="${q.replace(/"/g, "")}">
+        <summary><span class="fv-codes">${v.codes.length ? v.codes.map(c => `<b>${c}</b>`).join("") : `<b aria-label="senza sigla">—</b>`}</span><span class="fv-name">${v.name}</span><span class="eco-pill eco-${v.eco}">${ECO_LEVELS[v.eco]}</span></summary>
+        <div class="fv-body">
+          <p>${v.what}</p>
+          <p><b>Teme</b> ${v.fears}</p>
+          <p><b>Impatto ambientale</b> ${v.ecoText}${v.better ? ` <i>Meglio se ${v.better}.</i>` : ""}</p>
+          <p><b>Come si lava</b> ${v.wash}</p>
+          ${app}
+        </div></details>`;
+    }).join("");
+    h += `</section>`;
+  }
+  h += `<p class="small muted fv-empty" id="fiberEmpty" hidden>Nessuna fibra con questo nome o sigla.</p>`;
+  return h;
+}
+function filterFibers(q) {
+  q = q.trim().toLowerCase();
+  let any = false;
+  const items = [...document.querySelectorAll("#v-lab .fv-item")];
+  const codesOf = it => [...it.querySelectorAll(".fv-codes b")].map(b => b.textContent.toLowerCase());
+  // una sigla esatta mostra solo quella; altrimenti cerca nel nome, e nella descrizione solo da 4 lettere in su
+  const exact = q && items.some(it => codesOf(it).includes(q));
+  document.querySelectorAll("#v-lab .fv-family").forEach(sec => {
+    let vis = 0;
+    sec.querySelectorAll(".fv-item").forEach(it => {
+      const codes = codesOf(it), name = it.querySelector(".fv-name").textContent.toLowerCase();
+      const ok = !q || (exact ? codes.includes(q) : (name.includes(q) || codes.some(c => c.startsWith(q)) || (q.length >= 4 && it.dataset.q.includes(q))));
+      it.hidden = !ok; if (ok) vis++;
+      if (q && codes.includes(q)) it.open = true;
+    });
+    sec.hidden = !vis; if (vis) any = true;
+  });
+  const e = $("#fiberEmpty"); if (e) e.hidden = any;
 }
 function labStains() {
   return `<p class="small muted">Ogni macchia appartiene a una famiglia chimica, e la famiglia decide chi la scioglie: enzimi, tensioattivi, ossidanti, acidi o solventi.</p>
@@ -1084,6 +1137,7 @@ document.addEventListener("click", e => {
     case "done": markDone(); break;
     // laboratorio
     case "labtab": S.labTab = a.dataset.v; save(); render(); break;
+    case "fibre-vocab": S.labTab = "fibre"; save(); closeSheet(); go("lab"); break;
     case "labcat": S.labCat = a.dataset.v; save(); render(); break;
     case "card": openCard(id); break;
     case "c-opt": if (CARD && CARD.picked == null) { CARD.picked = +a.dataset.i; revealCard(); } break;
@@ -1142,7 +1196,7 @@ document.addEventListener("change", e => {
   if (inp === "price") { const v = parseFloat(String(el.value).replace(",", ".")); if (!isNaN(v)) S.settings.price = Math.max(0, Math.min(2, v)); save(); return; }
   if (inp === "dose") { const v = parseFloat(String(el.value).replace(",", ".")); S.pantry[el.dataset.id] = { ...(S.pantry[el.dataset.id] || {}), dose: isNaN(v) ? "" : v }; save(); return; }
 });
-document.addEventListener("input", e => { if (e.target.id === "pickColor") { setCustomColor(e.target.value); return; } if (e.target.dataset.calc) updateCalc(); });
+document.addEventListener("input", e => { if (e.target.id === "fiberSearch") { filterFibers(e.target.value); return; } if (e.target.id === "pickColor") { setCustomColor(e.target.value); return; } if (e.target.dataset.calc) updateCalc(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#sheetWrap").hidden) closeSheet(); });
 
 // ───────────────────────────── AVVIO ─────────────────────────────

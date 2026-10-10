@@ -586,3 +586,27 @@ input[type="range"] { width: 100%; accent-color: var(--blu); height: 28px; }
 .timer-left { font-family: var(--display); font-weight: 800; font-size: 18px; color: var(--blu); white-space: nowrap; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .skin.si { color: var(--molletta); } }
 :root[data-theme="dark"] .skin.si { color: var(--molletta); }
+
+/* Vocabolario delle fibre */
+.seg.seg5 { grid-template-columns: repeat(5, 1fr); }
+.seg.seg5 button { font-size: 13px; padding: 9px 2px; }
+.fv-intro { margin-top: 14px; }
+.search { width: 100%; font: inherit; font-size: 16px; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; padding: 11px 14px; }
+.search:focus { outline: none; border-color: var(--blu); }
+.fv-family { margin-top: 22px; gap: 8px; }
+.fv-family h3 { font-family: var(--display); font-size: 20px; }
+.fv-item { background: var(--paper); border-radius: var(--r-md); box-shadow: var(--shadow); }
+.fv-item summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 12px 14px; }
+.fv-item summary::-webkit-details-marker { display: none; }
+.fv-codes { display: inline-flex; gap: 4px; }
+.fv-codes b { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; letter-spacing: .02em; background: var(--blu-soft); color: var(--blu); border-radius: 7px; padding: 3px 6px; min-width: 30px; text-align: center; }
+.fv-name { font-weight: 700; line-height: 1.2; }
+.eco-pill { font-size: 11px; font-weight: 700; border-radius: 999px; padding: 3px 8px; white-space: nowrap; }
+.eco-1 { background: var(--verde-soft); color: var(--verde); }
+.eco-2 { background: var(--molletta-soft); color: var(--ink-2); }
+.eco-3 { background: var(--rosso-soft); color: var(--rosso); }
+.fv-body { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; color: var(--ink-2); }
+.fv-body b { color: var(--ink); }
+.fv-item[open] summary { border-bottom: 1px dashed var(--line); margin-bottom: 10px; }
+.link-inline { border: 0; background: none; padding: 0; font: inherit; color: var(--blu); font-weight: 700; text-decoration: underline; cursor: pointer; }
+@media (max-width: 360px) { .fv-item summary { grid-template-columns: auto 1fr; } .eco-pill { grid-column: 2; justify-self: start; } }
