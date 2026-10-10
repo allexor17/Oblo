@@ -605,8 +605,13 @@ input[type="range"] { width: 100%; accent-color: var(--blu); height: 28px; }
 .eco-1 { background: var(--verde-soft); color: var(--verde); }
 .eco-2 { background: var(--molletta-soft); color: var(--ink-2); }
 .eco-3 { background: var(--rosso-soft); color: var(--rosso); }
-.fv-body { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; color: var(--ink-2); }
+.fv-body { padding: 0 14px 16px; display: flex; flex-direction: column; gap: 14px; font-size: 15px; color: var(--ink-2); }
 .fv-body b { color: var(--ink); }
+.fv-body h4 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink); margin-bottom: 6px; }
+.fv-body .bullets { margin: 0; }
+.fv-sub { font-size: 13px; font-weight: 700; color: var(--ink-3); margin: 8px 0 2px; }
+.fv-better { margin-top: 8px; font-style: italic; }
+.fv-app { font-size: 13px; color: var(--blu); font-weight: 700; }
 .fv-item[open] summary { border-bottom: 1px dashed var(--line); margin-bottom: 10px; }
 .link-inline { border: 0; background: none; padding: 0; font: inherit; color: var(--blu); font-weight: 700; text-decoration: underline; cursor: pointer; }
 @media (max-width: 360px) { .fv-item summary { grid-template-columns: auto 1fr; } .eco-pill { grid-column: 2; justify-self: start; } }

@@ -283,7 +283,7 @@ function renderAdd(keep = true) {
       <p class="sw-label" id="swLabel">${colorLabel(C)}</p>
       <div class="row color-tools"><label class="btn plain sm photo-btn"><span aria-hidden="true">📷</span> Prendi il colore da una foto<input type="file" accept="image/*" id="pickPhoto" aria-label="Prendi il colore da una foto"></label></div>
       <div class="photo-pick" id="photoPick" hidden><canvas id="photoCanvas" aria-label="Foto del capo: tocca per leggere il colore"></canvas><p class="hint">Tocca il capo nella foto: Oblò legge il colore in quel punto. Scatta alla luce del giorno, senza flash.</p></div></div>`;
-    h += `<div class="group"><h4>Tessuto</h4><p class="hint">Lo trovi sull'etichetta cucita all'interno, spesso con le sigle: CO cotone, PES poliestere, PA nylon, PP polipropilene, EL elastan. Se è misto, scegli la fibra più delicata, cioè quella che regge meno calore: comanda lei. Elastan e nylon segnali sotto, nei dettagli. <button class="link-inline" type="button" data-act="fibre-vocab">Vocabolario delle sigle</button></p>
+    h += `<div class="group"><h4>Tessuto</h4><p class="hint">Lo trovi sull'etichetta cucita all'interno, spesso con sigle come CO, PES o PA: le spiega il <button class="link-inline" type="button" data-act="fibre-vocab">vocabolario delle fibre</button>. Se il tessuto è misto, scegli la fibra che regge meno calore: comanda lei. Elastan e nylon si segnano più sotto, tra i dettagli.</p>
       <div class="chips">${Object.entries(FIBERS).map(([k, f]) => `<button class="chip" type="button" data-act="d-fiber" data-v="${k}" aria-pressed="${D.fiber === k}">${f.name}${f.code ? ` <span class="tiny">${f.code}</span>` : ""}</button>`).join("")}</div></div>`;
     h += `<div class="group"><h4>Etichetta: la vaschetta</h4><p class="hint">Il numero nella vaschetta è la temperatura massima.</p>
       <div class="chips">${LABEL_OPTS.map(([v, t]) => `<button class="chip" type="button" data-act="d-label" data-v="${v ?? ""}" aria-pressed="${(D.label ?? "") === (v ?? "")}">${v && v !== "no" ? miniTub(v) : ""}${t}</button>`).join("")}</div></div>`;
@@ -569,7 +569,7 @@ function renderLavatrice() {
       <div><small>Temperatura</small><b>${R.T}°C</b></div>
       <div><small>Centrifuga</small><b>${R.spin}</b></div>
     </div>
-    <details class="why"><summary>Perché questo programma</summary><div class="why-body"><p>${R.program.why}</p>${R.progNote ? `<p><b>Sul tuo pannello:</b> ${R.progNote} Durata indicativa: ${R.program.dur}.</p>` : (S.settings.dial === "mio" ? `<p>Durata indicativa: ${R.program.dur}.</p>` : (R.program.alt ? `<p>Se la tua lavatrice non ce l'ha: <b>${R.program.alt}</b>. Durata indicativa: ${R.program.dur}.</p>` : ""))}
+    <details class="why"><summary>Perché questo programma</summary><div class="why-body"><p>${R.program.why}</p>${R.progNote ? `<p><b>Sul tuo pannello</b><br>${R.progNote} Durata indicativa: ${R.program.dur}.</p>` : (S.settings.dial === "mio" ? `<p>Durata indicativa: ${R.program.dur}.</p>` : (R.program.alt ? `<p>Se la tua lavatrice non ce l'ha: <b>${R.program.alt}</b>. Durata indicativa: ${R.program.dur}.</p>` : ""))}
       <div><b class="small">Il cerchio di Sinner di questo programma</b><div class="sinner">${R.program.sinner.map((v, i) => `<div class="sr"><span>${SINNER_LABELS[i]}</span><span class="pips">${[1, 2, 3, 4, 5].map(n => `<i class="${n <= v ? "on" : ""}"></i>`).join("")}</span></div>`).join("")}</div></div>
       <p class="small">Quattro leve: chimica, temperatura, azione meccanica, tempo. Se una scende, le altre devono salire per lo stesso pulito. <button class="btn plain sm" type="button" data-act="card" data-id="sinner">Approfondisci</button></p></div></details>
     <details class="why"><summary>Perché ${R.T}°C</summary><div class="why-body">${R.tempWhy.map(t => `<p>${t}</p>`).join("")}
@@ -923,14 +923,18 @@ function labFibers() {
     h += `<section class="fv-family stack" data-fam="${fam.id}"><div><h3>${fam.name}</h3><p class="small muted">${fam.sub}</p></div>`;
     h += items.map(v => {
       const q = [...v.codes, v.name, v.what].join(" ").toLowerCase();
-      const app = v.app ? `<p class="tiny">In Oblò: scegli «${FIBERS[v.app].name}»</p>` : v.appFlag ? `<p class="tiny">In Oblò: spunta «${v.appFlag}» tra i dettagli del capo</p>` : "";
+      const ul = list => `<ul class="bullets">${list.map(t => `<li>${t}</li>`).join("")}</ul>`;
+      const app = v.app ? `<p class="fv-app">In Oblò scegli il tessuto «${FIBERS[v.app].name}».</p>` : v.appFlag ? `<p class="fv-app">In Oblò spunta «${v.appFlag}» tra i dettagli del capo.</p>` : "";
       return `<details class="fv-item" data-q="${q.replace(/"/g, "")}">
         <summary><span class="fv-codes">${v.codes.length ? v.codes.map(c => `<b>${c}</b>`).join("") : `<b aria-label="senza sigla">—</b>`}</span><span class="fv-name">${v.name}</span><span class="eco-pill eco-${v.eco}">${ECO_LEVELS[v.eco]}</span></summary>
         <div class="fv-body">
           <p>${v.what}</p>
-          <p><b>Teme</b> ${v.fears}</p>
-          <p><b>Impatto ambientale</b> ${v.ecoText}${v.better ? ` <i>Meglio se ${v.better}.</i>` : ""}</p>
-          <p><b>Come si lava</b> ${v.wash}</p>
+          <div><h4>Cosa teme</h4>${ul(v.fears)}</div>
+          <div><h4>Impatto ambientale: ${ECO_LEVELS[v.eco].replace("impatto ", "")}</h4>
+            <p class="fv-sub">A favore</p>${ul(v.pro)}
+            <p class="fv-sub">Contro</p>${ul(v.contro)}
+            ${v.better ? `<p class="fv-better">Scegli, se puoi: ${v.better}.</p>` : ""}</div>
+          <div><h4>Come si lava</h4>${ul(v.wash)}</div>
           ${app}
         </div></details>`;
     }).join("");
