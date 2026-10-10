@@ -1017,6 +1017,51 @@ const CARDS = [
     rel: ["pelucchi", "neri_grigi", "rovescio"]
   },
   {
+    id: "maglia_piano", cat: "fibre",
+    title: "Perché i maglioni si asciugano in piano",
+    ask: "Una camicia si stende appesa, un cardigan di lana no. Cosa li distingue?",
+    opts: [
+      ["La lana pesa di più", false, "Conta, ma non spiega perché una camicia appesa non si deforma."],
+      ["La maglia è fatta di anelli che si allungano, il tessuto di fili dritti che si incrociano", true],
+      ["La camicia è sintetica", false, "Anche una camicia di cotone si stende appesa senza deformarsi."]
+    ],
+    body: [
+      "Un <b>tessuto</b>, come quello di una camicia, è fatto di fili dritti che si incrociano ad angolo retto: tirato, resiste, perché i fili sono già tesi. Una <b>maglia</b>, come quella di un cardigan, è un filo unico che forma anelli concatenati: tirata, gli anelli si allungano e si stringono, come una catena di molle.",
+      "Da bagnata la maglia pesa molto di più, e nella lana l'acqua scioglie anche i legami a idrogeno tra le catene di cheratina. Appesa, il suo stesso peso tira gli anelli verso il basso: il capo esce lungo, con le spalle a punta dove c'era la molletta.",
+      "In piano il peso si distribuisce sull'asciugamano e gli anelli restano dove sono. Prima, arrotola il capo in un asciugamano asciutto e premi, senza torcere: toglie gran parte dell'acqua."
+    ],
+    ana: "La piega del parrucchiere: bagnati, i capelli perdono i legami a idrogeno della cheratina e prendono la forma della spazzola; asciugando, quei legami si riformano e la forma resta. Un maglione appeso asciuga fissando la forma allungata.",
+    pratica: [
+      "Arrotola il capo in un asciugamano e premi, senza torcere.",
+      "Stendilo in piano su un asciugamano asciutto e dagli la forma con le mani.",
+      "Abbottona i cardigan prima del lavaggio."
+    ],
+    rel: ["lana_feltro", "restringimento", "centrifuga"]
+  },
+  {
+    id: "idrorepellente", cat: "fisica",
+    title: "Perché sul k-way l'acqua fa le goccioline",
+    ask: "Un k-way nuovo fa scivolare la pioggia in goccioline; dopo qualche lavaggio con l'ammorbidente si inzuppa. Cosa è cambiato?",
+    opts: [
+      ["Il nylon si è consumato", false, "Il tessuto è lo stesso: è cambiata la sua superficie."],
+      ["L'ammorbidente ha coperto il trattamento idrorepellente con uno strato che si bagna", true],
+      ["L'acqua del lavaggio ha riempito i pori", false, "Il nylon spalmato non ha pori da riempire: il problema è la superficie."]
+    ],
+    body: [
+      "Una goccia appoggiata è una gara tra due attrazioni: quella delle molecole d'acqua tra loro, cioè la tensione superficiale, e quella tra acqua e superficie. Se vince la prima, la goccia resta tonda e l'<b>angolo di contatto</b> supera i 90°: la superficie è idrofoba. Se vince la seconda, la goccia si spalma e il tessuto si bagna.",
+      "Il trattamento <b>idrorepellente</b> (DWR) riveste le fibre di catene molto apolari, che l'acqua non riesce a bagnare. La trama aggiunge rugosità e intrappola aria sotto la goccia: è l'effetto loto, lo stesso per cui la foglia di loto si pulisce da sola.",
+      "L'<b>ammorbidente</b> è un tensioattivo cationico: si deposita sulle fibre e la superficie diventa bagnabile. I residui di detersivo fanno lo stesso. Per questo i capi tecnici vogliono poco detersivo liquido, risciacqui abbondanti e niente ammorbidente.",
+      "Molti trattamenti tornano a funzionare con un po' di calore, che riordina le catene in superficie: asciugatrice tiepida o ferro basso con un panno, se l'etichetta lo permette. Quando non basta più, un prodotto impermeabilizzante, anche con il programma apposito della lavatrice, deposita un trattamento nuovo."
+    ],
+    ana: "La cera sull'auto: finché c'è, la pioggia fa le gocce e scivola via; quando si consuma, o la copri con qualcosa che si bagna, la carrozzeria resta bagnata.",
+    pratica: [
+      "Niente ammorbidente sui capi impermeabili.",
+      "Poco detersivo liquido e un risciacquo in più.",
+      "Se l'acqua non fa più le gocce: prima un po' di calore, poi un impermeabilizzante."
+    ],
+    rel: ["ammorbidente", "tensioattivi", "sport_odori"]
+  },
+  {
     id: "asciugamani_nuovi", cat: "trucchi",
     title: "Asciugamani nuovi che non asciugano",
     ask: "Un asciugamano appena comprato non assorbe. Perché?",

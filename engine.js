@@ -41,7 +41,7 @@ function dialProgram(pk, items, synth, T, settings) {
   const P = PROGRAMS[pk];
   if ((settings && settings.dial) !== "mio") return { name: P.name, note: "" };
   const t = `${T}°C`;
-  const outdoor = items.some(it => it.fiber === "membrana" || it.g === "giacca" || it.g === "pile");
+  const outdoor = items.some(it => it.fiber === "membrana" || has(it, "impermeabile") || it.g === "giacca" || it.g === "pile");
   switch (pk) {
     case "eco": return { name: "ECO 40-60", note: "" };
     case "cotone": return { name: "Cotone", note: `Imposta ${t} con il tasto della temperatura.` };
@@ -71,7 +71,7 @@ const BASKET_CARDS = {
   spugna_col: ["ammorbidente", "sessanta", "pelucchi"],
   sport: ["sport_odori", "microplastiche"],
   delicati: ["viscosa", "centrifuga"],
-  lana: ["lana_feltro", "enzimi"],
+  lana: ["lana_feltro", "maglia_piano", "enzimi"],
   mano: ["enzimi", "lana_feltro"],
   piumini: ["piumini"],
   stinge: ["test_colore", "sale_colori", "acchiappacolore"],
@@ -113,6 +113,9 @@ function sortItem(it) {
   if (it.fiber === "pelle" && it.g === "scarpe") return out("nolav", "Le scarpe di pelle non vanno in acqua: perderebbero gli oli che le tengono morbide e asciugando si crepano. Si puliscono a mano, con spazzola, panno appena umido e crema: trovi la guida nella Bacinella.", ["restringimento"]);
   if (it.fiber === "pelle") return out("nolav", "La pelle in acqua perde gli oli che la tengono morbida: asciugando si irrigidisce, si crepa e si restringe. Va in una tintoria che tratta la pelle.");
 
+  if (has(it, "visiera"))
+    return out("mano", "La visiera ha un'anima di cartone o di plastica: in lavatrice si deforma o si spezza, e il cartone si sfalda. A mano, in acqua tiepida con un po' di detersivo e uno spazzolino morbido, senza piegare la visiera; poi ad asciugare calzato su un barattolo o una palla, che gli tiene la forma.", ["mano_o_lavatrice"]);
+
   if (it.fiber === "lana" || it.fiber === "cashmere")
     return out("lana", `${gname} in ${fib}: è cheratina, la stessa proteina dei capelli. Con acqua calda e movimento le scaglie della fibra si agganciano tra loro e il capo infeltrisce, in modo irreversibile. Serve il programma lana: freddo, movimento minimo, detersivo senza enzimi.`);
 
@@ -122,7 +125,11 @@ function sortItem(it) {
     return out("mano", "L'etichetta mostra la mano nella vaschetta: acqua al massimo tiepida, niente sfregamenti né centrifuga forte. Il programma lana o 'a mano' della lavatrice è un sostituto valido.");
 
   if (it.fiber === "piuma")
-    return out("piumini", "La piuma ha bisogno di spazio per gonfiarsi, di tanti risciacqui e di un'asciugatura lunga: un piumino alla volta, con detersivo neutro e senza ammorbidente.");
+    return out("piumini", has(it, "imbottito")
+      ? `${gname} in piuma: ha bisogno di spazio per gonfiarsi, di tanti risciacqui e di un'asciugatura lunga e completa. Controlla prima che entri nel cestello lasciando spazio: se è troppo grande, serve la lavatrice capiente di una lavanderia a gettoni.`
+      : "La piuma ha bisogno di spazio per gonfiarsi, di tanti risciacqui e di un'asciugatura lunga: un piumino alla volta, con detersivo neutro e senza ammorbidente.");
+  if (has(it, "imbottito"))
+    return out("piumini", `${gname} con imbottitura sintetica: come un piumino, ha bisogno di spazio per gonfiarsi e di tanti risciacqui, perché l'imbottitura trattiene acqua e detersivo. Meglio due cuscini insieme, che bilanciano la centrifuga. Se l'etichetta permette 60°C, ogni tanto usala: sopra i 55–60°C gli acari non sopravvivono. Il memory foam invece non va in acqua: si lava solo la fodera.`);
 
   if (it.g === "zaino")
     return out("pesante", "Lo zaino ha imbottiture, schienale e spesso un rivestimento impermeabile che in lavatrice si deformano e si sfaldano. Meglio a mano, a zone, con spugna e spazzolino: la guida è nella Bacinella. Solo se l'etichetta lo permette, in lavatrice da solo, in un sacco, a 30°C.", ["mano_o_lavatrice", "dose"]);
@@ -136,6 +143,8 @@ function sortItem(it) {
   if (it.flags.nuovo && (C.hot || grp === "scuro"))
     return out("stinge", `${gname} ${col}, nuovo: i capi di colore intenso contengono spesso colorante in eccesso, non fissato, che si libera nei primi lavaggi e finirebbe sugli altri capi. Fai il test del cotton fioc: se colora, 2–3 lavaggi da solo o con capi dello stesso colore, a freddo, con un acchiappacolore.`);
 
+  if (has(it, "impermeabile"))
+    return out("sport", `${gname}: è nylon spalmato o trattato idrorepellente. L'ammorbidente lo riveste di un film che si lascia bagnare, e il calore rovina spalmatura e cuciture. 30°C, programma sport o outdoor, centrifuga bassa, zip chiuse, niente ammorbidente. Se l'acqua non fa più le goccioline, il trattamento si ravviva con un prodotto impermeabilizzante.`, ["idrorepellente", "nylon_colore"]);
   if (it.fiber === "membrana")
     return out("sport", "La membrana impermeabile e traspirante ha pori microscopici: l'ammorbidente li ostruisce e il calore danneggia le cuciture termosaldate. Programma sport o sintetici a 30°C, detersivo liquido, zip chiuse.");
   if (has(it, "sport") || it.fiber === "tecnico") {
@@ -146,6 +155,8 @@ function sortItem(it) {
 
   if (has(it, "lingerie"))
     return out("delicati", `${gname}: ferretti, gancetti, pizzi ed elastici si deformano con il rotolamento e la centrifuga alta, e i gancetti aperti si agganciano agli altri capi. In retina, nel carico dei delicati.`);
+  if (it.fiber === "lyocell")
+    return out("delicati", "Lyocell e Tencel sono cellulosa rigenerata, più resistente della viscosa, ma da bagnati si sfibrillano: lo sfregamento solleva microfibrille in superficie e il capo prende un velo biancastro, come una pelle di pesca. Al rovescio, 30°C, centrifuga bassa, cestello non stipato.", ["neri_grigi", "viscosa"]);
   if (it.fiber === "viscosa")
     return out("delicati", "La viscosa è cellulosa rigenerata: bagnata perde circa metà della sua resistenza e si deforma o si restringe facilmente. Delicati a 30°C, centrifuga bassa, in retina.");
   if (it.fiber === "acrilico")
@@ -193,8 +204,12 @@ function sortItem(it) {
 function itemNotes(it, basket) {
   const n = [];
   const G = GARMENTS[it.g];
-  if (has(it, "rovescio") || colorGroup(it) === "scuro" || it.flags.stampa) n.push("Lavalo al rovescio.");
+  if ((has(it, "rovescio") || colorGroup(it) === "scuro" || it.flags.stampa) && !has(it, "abbottona") && !has(it, "visiera")) n.push("Lavalo al rovescio.");
   if (has(it, "bottoni")) n.push("Sbottonalo: le asole tirate in centrifuga si sfilacciano.");
+  if (has(it, "abbottona")) n.push("Abbottonalo e rovescialo: aperto, il davanti si allunga e si aggroviglia con gli altri capi.");
+  if (has(it, "piano")) n.push("Asciugalo in piano su un asciugamano: bagnata, la maglia si allunga sotto il proprio peso.");
+  if (has(it, "imbottito")) n.push("Asciugalo fino in fondo, girandolo spesso e sprimacciandolo: un'imbottitura umida dentro fa muffa e odore.");
+  if (has(it, "impermeabile")) n.push("Niente ammorbidente né asciugatrice calda: tolgono l'idrorepellenza.");
   if (has(it, "zip")) n.push("Chiudi la zip: aperta graffia gli altri capi.");
   if (has(it, "chiudi")) n.push("Chiudilo, così i capi piccoli non ci finiscono dentro.");
   if (has(it, "lavabile")) {
@@ -210,7 +225,7 @@ function itemNotes(it, basket) {
   if (has(it, "cede")) n.push("Perde pelucchi: tienilo lontano da pile, velluto e sintetici scuri.");
   if (has(it, "attira")) n.push("Attira i pelucchi: lontano da spugna e felpe nuove.");
   if (isMagnet(it)) n.push("Nylon chiaro: è la fibra che prende più colore dagli altri capi. Mai con scuri, jeans o capi nuovi; con i colorati, due acchiappacolore.");
-  if (has(it, "noAmm") && !has(it, "spugna") && !has(it, "lavabile")) n.push("Niente ammorbidente.");
+  if (has(it, "noAmm") && !has(it, "spugna") && !has(it, "lavabile") && !has(it, "impermeabile")) n.push("Niente ammorbidente.");
   if (it.flags.macchia && STAINS[it.flags.macchia]) n.push(`Ha una macchia di ${lc(STAINS[it.flags.macchia].name)}: trattala prima del lavaggio. Trovi i passi nella lavatrice.`);
   if (it.flags.sporco === "poco" && !has(it, "igiene") && !has(it, "sport")) n.push("È poco sporco: forse basta arieggiarlo e smacchiare localmente?");
   if (it.flags.nuovo && basket !== "stinge" && colorGroup(it) !== "bianco") n.push("Capo nuovo: fai il test del cotton fioc prima del primo lavaggio.");

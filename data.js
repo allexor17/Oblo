@@ -9,7 +9,8 @@ const FIBERS = {
   poliammide: { name: "Nylon / poliammide",           fam: "sintetica",           maxT: 40, spin: 800 },
   acrilico:   { name: "Acrilico",                     fam: "sintetica",           maxT: 30, spin: 800 },
   tecnico:    { name: "Tecnico sportivo",             fam: "sintetica",           maxT: 40, spin: 800 },
-  viscosa:    { name: "Viscosa / modal",              fam: "cellulosa rigenerata", maxT: 30, spin: 600 },
+  viscosa:    { name: "Viscosa / modal / bambù",      fam: "cellulosa rigenerata", maxT: 30, spin: 600 },
+  lyocell:    { name: "Lyocell / Tencel",             fam: "cellulosa rigenerata", maxT: 40, spin: 800 },
   lana:       { name: "Lana",                         fam: "proteica (cheratina)", maxT: 30, spin: 600 },
   cashmere:   { name: "Cashmere / alpaca / angora",   fam: "proteica (cheratina)", maxT: 30, spin: 400 },
   seta:       { name: "Seta",                         fam: "proteica (fibroina)",  maxT: 30, spin: 400 },
@@ -18,18 +19,23 @@ const FIBERS = {
   pelle:      { name: "Pelle / scamosciato",          fam: "pelle animale",        maxT: 0,  spin: 0 }
 };
 
-// tag: rovescio · bottoni · zip · retina · igiene · spugna · cede · attira · sport · lingerie · aparte · noAmm · chiudi
+// tag: rovescio · bottoni · abbottona · zip · retina · piano · igiene · spugna · cede · attira · sport · lingerie · aparte · noAmm · chiudi · impermeabile · imbottito · visiera
 const GARMENTS = {
   tshirt:      { name: "T-shirt",                   e: "👕", fiber: "cotone",     w: 160,  tags: [] },
   camicia:     { name: "Camicia",                   e: "👔", fiber: "cotone",     w: 220,  tags: ["bottoni"] },
   top:         { name: "Top / camicetta",           e: "👚", fiber: "viscosa",    w: 150,  tags: [] },
-  maglione:    { name: "Maglione",                  e: "🧶", fiber: "lana",       w: 450,  tags: [] },
+  maglione:    { name: "Maglione",                  e: "🧶", fiber: "lana",       w: 450,  tags: ["piano"] },
+  cardigan:    { name: "Cardigan",                  e: "🧶", fiber: "lana",       w: 400,  tags: ["abbottona", "piano", "retina"] },
+  canotta:     { name: "Canotta / canottiera",      e: "👕", fiber: "cotone",     w: 100,  tags: [] },
   felpa:       { name: "Felpa",                     e: "🧥", fiber: "misto",      w: 500,  tags: ["rovescio", "cede", "zip"] },
   jeans:       { name: "Jeans",                     e: "👖", fiber: "denim",      w: 650,  tags: ["rovescio", "zip"] },
   pantaloni:   { name: "Pantaloni",                 e: "👖", fiber: "misto",      w: 450,  tags: ["zip"] },
   shorts:      { name: "Pantaloncini",              e: "🩳", fiber: "cotone",     w: 250,  tags: [] },
+  tuta:        { name: "Pantaloni della tuta",      e: "👖", fiber: "misto",      w: 400,  tags: ["rovescio", "cede"] },
   sportmaglia: { name: "Maglia sportiva",           e: "🎽", fiber: "tecnico",    w: 150,  tags: ["sport", "rovescio", "noAmm"] },
   leggings:    { name: "Leggings / tuta sportiva",  e: "🎽", fiber: "tecnico",    w: 220,  tags: ["sport", "rovescio", "noAmm"] },
+  topsport:    { name: "Reggiseno sportivo",        e: "🎽", fiber: "tecnico",    w: 90,   tags: ["sport", "retina", "noAmm"] },
+  termica:     { name: "Maglia termica",            e: "🎽", fiber: "tecnico",    w: 180,  tags: ["sport", "rovescio", "noAmm"] },
   vestito:     { name: "Vestito",                   e: "👗", fiber: "viscosa",    w: 300,  tags: ["zip"] },
   gonna:       { name: "Gonna",                     e: "👗", fiber: "misto",      w: 250,  tags: ["zip"] },
   intimo:      { name: "Slip / boxer",              e: "🩲", fiber: "cotone",     w: 50,   tags: ["igiene"] },
@@ -43,23 +49,42 @@ const GARMENTS = {
   asciugamano: { name: "Asciugamano viso",          e: "🛁", fiber: "cotone",     w: 250,  tags: ["spugna", "igiene", "cede", "noAmm"] },
   telo:        { name: "Telo bagno",                e: "🛁", fiber: "cotone",     w: 650,  tags: ["spugna", "igiene", "cede", "noAmm"] },
   accappatoio: { name: "Accappatoio",               e: "🥋", fiber: "cotone",     w: 1100, tags: ["spugna", "igiene", "cede", "noAmm"] },
+  turbante:    { name: "Asciugamano capelli in microfibra", e: "🧖", fiber: "poliestere", w: 150, tags: ["igiene", "attira", "noAmm"] },
+  struccanti:  { name: "Dischetti struccanti lavabili", e: "⚪", fiber: "cotone",  w: 5,    tags: ["igiene", "retina", "noAmm"], stain: "trucco" },
   strofinacci: { name: "Strofinaccio",              e: "🍽️", fiber: "cotone",     w: 80,   tags: ["spugna", "igiene", "noAmm"] },
   tovaglia:    { name: "Tovaglia",                  e: "🍽️", fiber: "cotone",     w: 500,  tags: [] },
   lenzuolo:    { name: "Lenzuolo",                  e: "🛏️", fiber: "cotone",     w: 700,  tags: ["igiene"] },
   federa:      { name: "Federa",                    e: "🛏️", fiber: "cotone",     w: 150,  tags: ["igiene", "chiudi"] },
   copripiumino:{ name: "Copripiumino",              e: "🛏️", fiber: "cotone",     w: 1000, tags: ["igiene", "chiudi"] },
+  coprimaterasso:{ name: "Coprimaterasso",          e: "🛏️", fiber: "cotone",     w: 900,  tags: ["igiene"] },
+  cuscino:     { name: "Cuscino (guanciale)",       e: "🛏️", fiber: "poliestere", w: 800,  tags: ["imbottito"] },
+  trapunta:    { name: "Piumone / trapunta",        e: "🛏️", fiber: "piuma",      w: 2000, tags: ["imbottito"] },
   camice:      { name: "Camice / divisa",           e: "🥼", fiber: "misto",      w: 400,  tags: ["igiene", "bottoni"] },
   giacca:      { name: "Giacca impermeabile",       e: "🧥", fiber: "membrana",   w: 600,  tags: ["zip", "noAmm"] },
+  kway:        { name: "K-way / giacca a vento",    e: "🧥", fiber: "poliammide", w: 250,  tags: ["zip", "noAmm", "impermeabile"] },
   piumino:     { name: "Piumino",                   e: "🧥", fiber: "piuma",      w: 900,  tags: ["zip", "noAmm"] },
   pile:        { name: "Pile",                      e: "🧥", fiber: "poliestere", w: 400,  tags: ["attira", "zip"] },
   sciarpa:     { name: "Sciarpa",                   e: "🧣", fiber: "lana",       w: 150,  tags: [] },
   berretto:    { name: "Berretto",                  e: "🧢", fiber: "acrilico",   w: 80,   tags: [] },
+  cappellino:  { name: "Cappellino con visiera",    e: "🧢", fiber: "cotone",     w: 100,  tags: ["visiera"] },
+  capelli:     { name: "Fascia o elastici per capelli", e: "🎀", fiber: "misto",  w: 20,   tags: ["retina"] },
   guanti:      { name: "Guanti di lana",            e: "🧤", fiber: "lana",       w: 60,   tags: [] },
   microfibra:  { name: "Panno in microfibra",       e: "🧽", fiber: "poliestere", w: 40,   tags: ["attira", "noAmm"] },
   tenda:       { name: "Tenda",                     e: "🪟", fiber: "poliestere", w: 1200, tags: [] },
   scarpe:      { name: "Scarpe",                    e: "👟", fiber: "misto",      w: 700,  tags: ["aparte"] },
   zaino:       { name: "Zaino o borsa di tela",     e: "🎒", fiber: "poliestere", w: 600,  tags: ["aparte"] }
 };
+
+// Gruppi del selettore "Che capo è?"
+const GARMENT_GROUPS = [
+  { name: "Sopra", ids: ["tshirt", "canotta", "camicia", "top", "maglione", "cardigan", "felpa", "vestito", "camice"] },
+  { name: "Sotto", ids: ["jeans", "pantaloni", "tuta", "shorts", "gonna"] },
+  { name: "Intimo e notte", ids: ["intimo", "reggiseno", "salvaslip", "assorbente", "calzini", "collant", "pigiama"] },
+  { name: "Sport", ids: ["sportmaglia", "leggings", "topsport", "termica", "costume"] },
+  { name: "Giacche e accessori", ids: ["kway", "giacca", "piumino", "pile", "sciarpa", "berretto", "cappellino", "guanti", "capelli", "scarpe", "zaino"] },
+  { name: "Bagno e cura", ids: ["asciugamano", "telo", "accappatoio", "turbante", "struccanti"] },
+  { name: "Casa e letto", ids: ["lenzuolo", "federa", "copripiumino", "coprimaterasso", "cuscino", "trapunta", "tovaglia", "strofinacci", "microfibra", "tenda"] }
+];
 
 // group: bianco · chiaro · colorato · scuro    hot: tende a stingere
 const COLORS = {
@@ -98,7 +123,7 @@ const BASKETS = {
   delicati:      { name: "Delicati",                sub: "Viscosa, pizzi, collant, decorazioni",                              dot: "#C9B6E4",  temp: 30, spin: 600,  capF: 0.35 },
   lana:          { name: "Lana e cashmere",         sub: "Cheratina: freddo, movimento minimo, niente enzimi",                dot: "#B89A7A",  temp: 30, spin: 600,  capF: 0.25 },
   mano:          { name: "Seta e lavaggio a mano",  sub: "Fibre proteiche fragili o etichetta con la mano",                   dot: "#E8D8B0",  temp: 30, spin: 400,  capF: 0.15 },
-  piumini:       { name: "Piumini",                 sub: "Uno alla volta, con spazio per gonfiarsi",                          dot: "#9FB4C9",  temp: 30, spin: 600,  capF: 0.3 },
+  piumini:       { name: "Piumini e imbottiti",     sub: "Piumini, cuscini, trapunte: spazio per gonfiarsi",                          dot: "#9FB4C9",  temp: 30, spin: 600,  capF: 0.3 },
   stinge:        { name: "A parte: stingono",       sub: "Capi nuovi e intensi che rilasciano colorante",                     dot: "#D3313E",  temp: 30, spin: 800,  capF: 1 },
   pesante:       { name: "A parte: sporco pesante", sub: "Fango, grasso, peli, scarpe",                                       dot: "#8A6A4A",  temp: 40, spin: 1000, capF: 1 },
   nolav:         { name: "Non in lavatrice",        sub: "Tintoria o pulizia professionale",                                  dot: "#9AA3B2",  temp: 0,  spin: 0,    capF: 0 }

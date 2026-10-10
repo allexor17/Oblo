@@ -182,6 +182,8 @@ function basketWarnings(k, its) {
   const w = [];
   const cede = its.filter(it => has(it, "cede")), attira = its.filter(it => has(it, "attira"));
   if (cede.length && attira.length) w.push(`${cap1(names(cede))} perde pelucchi e ${names(attira)} li attira: rovescia i secondi o lavali in due volte.`);
+  const magnets = its.filter(isMagnet), darker = its.filter(it => !isMagnet(it) && (colorGroup(it) === "scuro" || (it.flags.nuovo && COLORS[it.color].hot)));
+  if (magnets.length && darker.length) w.push(`${cap1(names(magnets))} è nylon chiaro e prende il colore di ${names(darker)}: lavalo con i chiari, o da solo.`);
   if (k === "stinge" && new Set(its.map(it => it.color)).size > 1) w.push("Qui ci sono colori diversi: i capi che stingono vanno lavati da soli o solo con capi dello stesso colore.");
   if (k === "piumini" && qtyOf(its) > 1) w.push("Un piumino alla volta: ha bisogno di spazio per gonfiarsi.");
   const lim = its.filter(it => it.label && /^\d+$/.test(it.label) && +it.label < BASKETS[k].temp);
@@ -266,8 +268,8 @@ function renderAdd(keep = true) {
   const G = D.g && GARMENTS[D.g];
   let h = sheetHead(D.id ? "Modifica capo" : "Che capo è?");
   if (D.pickG || !G) {
-    h += `<div class="group"><div class="garment-grid">${Object.entries(GARMENTS).map(([k, g]) =>
-      `<button class="garment" type="button" data-act="d-g" data-v="${k}" aria-pressed="${D.g === k}"><span class="em" aria-hidden="true">${g.e}</span>${g.name}</button>`).join("")}</div></div>`;
+    h += GARMENT_GROUPS.map(gr => `<div class="group"><h4>${gr.name}</h4><div class="garment-grid">${gr.ids.map(k => { const g = GARMENTS[k];
+      return `<button class="garment" type="button" data-act="d-g" data-v="${k}" aria-pressed="${D.g === k}"><span class="em" aria-hidden="true">${g.e}</span>${g.name}</button>`; }).join("")}</div></div>`).join("");
   } else {
     h += `<div class="group row"><span class="chip" aria-pressed="true"><span class="em" aria-hidden="true">${G.e}</span>${G.name}</span><button class="btn plain sm" type="button" data-act="d-regarment">Cambia</button></div>`;
   }
@@ -985,7 +987,7 @@ document.addEventListener("click", e => {
     case "timer-stop": delete S.timers[id]; save(); if (!$("#sheetWrap").hidden && GUIDE === id) openGuide(id, true); if (VIEW === "mano") render(); break;
     case "hand-done": { const n = removeBaskets(a.dataset.keys.split(",")); save(); render(); toast(`Lavati a mano ${n} ${n === 1 ? "capo" : "capi"}. In piano all'ombra.`); break; }
     // bozza
-    case "d-g": D.g = a.dataset.v; D.fiber = GARMENTS[D.g].fiber; D.pickG = false; D.flags.elastan = ["leggings", "sportmaglia", "costume"].includes(D.g); if (GARMENTS[D.g].stain && !D.id) D.flags.macchia = GARMENTS[D.g].stain; renderAdd(false); break;
+    case "d-g": D.g = a.dataset.v; D.fiber = GARMENTS[D.g].fiber; D.pickG = false; D.flags.elastan = ["leggings", "sportmaglia", "costume", "topsport", "termica"].includes(D.g); if (GARMENTS[D.g].stain && !D.id) D.flags.macchia = GARMENTS[D.g].stain; renderAdd(false); break;
     case "d-regarment": D.pickG = true; renderAdd(false); break;
     case "d-color": D.color = a.dataset.v; renderAdd(); break;
     case "d-fiber": D.fiber = a.dataset.v; renderAdd(); break;
