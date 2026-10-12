@@ -63,12 +63,12 @@ function dialProgram(pk, items, synth, T, settings) {
 }
 
 const BASKET_CARDS = {
-  bianchi: ["ossigeno", "sbiancanti", "sessanta"],
+  bianchi: ["ossigeno", "sbiancanti", "sessanta", "rigido"],
   chiari: ["sbiancanti", "acchiappacolore"],
   colorati: ["acchiappacolore", "test_colore"],
   scuri: ["neri_grigi", "rovescio"],
-  spugna_chiara: ["ammorbidente", "sessanta", "pelucchi"],
-  spugna_col: ["ammorbidente", "sessanta", "pelucchi"],
+  spugna_chiara: ["ammorbidente", "rigido", "sessanta", "pelucchi"],
+  spugna_col: ["ammorbidente", "rigido", "sessanta", "pelucchi"],
   sport: ["sport_odori", "microplastiche"],
   delicati: ["viscosa", "centrifuga"],
   lana: ["lana_feltro", "maglia_piano", "enzimi"],
@@ -726,6 +726,13 @@ function buildRecipe(items, keys, pantry, settings) {
     rinse.why.push("Non serve niente nella vaschetta ⚘. Se l'acqua è dura, l'acido citrico è l'alternativa ecologica all'ammorbidente.");
     if (settings.hard === "dura") R.missing.push("acido_citrico");
   }
+  // polvere e percarbonato portano carbonato: con acqua non dolce il calcare si deposita nelle fibre e le irrigidisce
+  const carbonate = (R.detergent && R.detergent.id === "polvere") || R.additives.some(a => a.id === "percarbonato" && a.level === "si");
+  if (acidOk && carbonate && settings.hard !== "dolce" && !R.drawer.A) {
+    rinse.why = rinse.why.filter(w => !w.startsWith("Non serve niente"));
+    rinse.why.push("Con la polvere o il percarbonato e un'acqua non dolce, il carbonato di sodio fa precipitare il calcare dentro le fibre: il cotone esce rigido e, col tempo, grigio. L'acido citrico nell'ultimo risciacquo lo scioglie.");
+    if (!R.missing.includes("acido_citrico")) R.missing.push("acido_citrico");
+  }
   if (R.drawer.A && owned(pantry, "candeggina") && R.additives.some(a => a.id === "candeggina" && a.level !== "no")) rinse.why.push("Mai acido citrico o aceto se nel lavaggio c'è candeggina: libererebbero cloro.");
   R.rinse = rinse;
   if (soil === "molto" && items.some(it => it.flags.pesante)) R.drawer.I = { note: "Prelavaggio: un terzo della dose nella vaschetta I." };
@@ -769,9 +776,12 @@ function buildRecipe(items, keys, pantry, settings) {
 
   // dopo il lavaggio
   const after = ["Stendi entro 30–60 minuti dalla fine: nei capi bagnati e chiusi i batteri dell'odore di umido si moltiplicano in fretta."];
-  if (["bianchi", "spugna_chiara"].includes(gov)) after.push("Al sole se puoi: gli UV sbiancano e igienizzano.");
+  if (["bianchi", "spugna_chiara"].includes(gov)) after.push("Al sole se puoi: gli UV sbiancano e igienizzano. Il sole però asciuga in fretta e senza movimento, e il cotone si irrigidisce: ritira i capi appena asciutti, e se li vuoi morbidi falli finire all'ombra, in un punto ventilato.");
+  const cellulose = items.some(it => ["cotone", "lino", "misto", "denim"].includes(it.fiber));
+  if (cellulose && !["lana", "mano", "piumini", "sport"].includes(gov) && !items.some(it => has(it, "spugna")))
+    after.push("Per la morbidezza: sbatti forte ogni capo due o tre volte prima di stenderlo, e stropiccialo tra le mani quando è asciutto. Si staccano le fibre che si sono incollate asciugando ferme.");
   if (["colorati", "scuri", "spugna_col", "chiari", "stinge"].includes(gov)) after.push("All'ombra e al rovescio: gli UV spezzano anche i cromofori dei tuoi colori.");
-  if (items.some(it => has(it, "spugna"))) after.push("Spugna: sbattila forte prima di stenderla, o 10 minuti di asciugatrice per farla tornare morbida.");
+  if (items.some(it => has(it, "spugna"))) after.push("Spugna: sbattila forte prima di stenderla e di nuovo quando è asciutta, oppure 10 minuti di asciugatrice: il movimento rompe i legami tra le fibre e i riccioli tornano morbidi.");
   if (gov === "sport") after.push("Subito all'aria, niente asciugatrice calda: l'elastan oltre i 60°C perde elasticità.");
   if (gov === "delicati") after.push("Su gruccia o in piano, senza strizzare.");
   if (["lana", "mano"].includes(gov)) after.push("Arrotola il capo in un asciugamano per togliere l'acqua, poi in piano all'ombra, riportandolo alla sua forma.");

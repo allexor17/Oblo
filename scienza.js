@@ -1017,6 +1017,32 @@ const CARDS = [
     rel: ["pelucchi", "neri_grigi", "rovescio"]
   },
   {
+    id: "rigido", cat: "fisica",
+    title: "Perché il bucato steso esce rigido",
+    ask: "Gli asciugamani usciti dalla lavatrice morbidi diventano rigidi come cartone dopo una giornata sullo stendino. Cosa è successo mentre asciugavano?",
+    opts: [
+      ["Hanno perso il detersivo che li ammorbidiva", false, "Il detersivo non ammorbidisce: se ne resta, semmai, irrigidisce."],
+      ["Le fibre di cellulosa si sono legate tra loro mentre l'acqua evaporava, e il calcare le ha incrostate", true],
+      ["Il sole ha bruciato il cotone", false, "Il sole asciuga in fretta e così irrigidisce, ma non brucia la fibra."]
+    ],
+    body: [
+      "Il cotone è cellulosa, una catena piena di gruppi –OH. Da bagnate le fibre sono separate dall'acqua. Mentre l'acqua evapora, gli ultimi velini tirano le fibre una contro l'altra per capillarità, e i gruppi –OH di due fibre vicine formano <b>legami a idrogeno</b> diretti. Le fibre restano incollate nella posizione in cui si sono asciugate.",
+      "È esattamente il modo in cui si fa la carta: una poltiglia di fibre di cellulosa bagnate che, asciugando ferma, diventa un foglio rigido. Un asciugamano asciugato immobile, al sole e senza vento, diventa un po' carta.",
+      "Il movimento rompe quei legami mentre si formano: per questo dall'asciugatrice escono morbidi, e il vento sullo stendino aiuta. Anche dopo puoi romperli: sbattere e stropicciare un capo asciutto lo ammorbidisce subito.",
+      "La seconda causa è chimica. Con acqua dura, il carbonato di sodio della polvere e del percarbonato fa precipitare il <b>calcare</b> dentro le fibre, come sulla resistenza del bollitore. Quella rigidità non va via sbattendo: la scioglie un acido, come l'acido citrico nell'ultimo risciacquo.",
+      "L'<b>ammorbidente</b> funziona ricoprendo le fibre di un film lubrificante che impedisce ai legami di formarsi. Per questo è così efficace, e per questo toglie assorbenza alla spugna."
+    ],
+    ana: "L'ammorbidente fa per le fibre quello che il surfattante fa per gli alveoli: riduce le forze che tengono incollate due superfici bagnate quando l'acqua se ne va. Senza, gli alveoli collassano e le fibre si saldano.",
+    pratica: [
+      "Il test: stropiccia l'asciugamano asciutto. Se diventa morbido, erano legami tra le fibre; se resta ruvido e un po' grigio, è calcare.",
+      "Sbatti ogni capo prima di stenderlo, e di nuovo quando è asciutto.",
+      "Al sole per sbiancare, ma ritira i capi appena asciutti, o falli finire all'ombra in un punto ventilato.",
+      "Con acqua media o dura e detersivo in polvere: acido citrico nella vaschetta ⚘.",
+      "Non abbondare con la polvere: quella che non si scioglie resta nelle fibre."
+    ],
+    rel: ["acido_citrico", "ammorbidente", "durezza"]
+  },
+  {
     id: "maglia_piano", cat: "fibre",
     title: "Perché i maglioni si asciugano in piano",
     ask: "Una camicia si stende appesa, un cardigan di lana no. Cosa li distingue?",
