@@ -1,5 +1,5 @@
 // Oblò · funzionamento offline. Cambia VERSION a ogni aggiornamento.
-const VERSION = "oblo-v19";
+const VERSION = "oblo-v20";
 const CORE = ["./", "./index.html", "./style.css", "./data.js", "./scienza.js", "./engine.js", "./mano.js", "./app.js", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {

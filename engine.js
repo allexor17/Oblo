@@ -713,7 +713,8 @@ function buildRecipe(items, keys, pantry, settings) {
   if (acidOk && owned(pantry, "acido_citrico")) {
     const ml = settings.hard === "dura" ? 100 : settings.hard === "media" ? 80 : 60;
     R.drawer.A = { id: "acido_citrico", amount: ml, unit: "ml" };
-    rinse.why.push(`Acido citrico: ${ml} ml nella vaschetta ⚘. Scioglie il calcare e neutralizza i residui alcalini: morbidezza senza pellicole${items.some(it => has(it, "spugna")) ? ", e la spugna resta assorbente" : ""}.`);
+    const g = Math.round(ml * 0.15), spoon = ml >= 100 ? "un cucchiaio raso" : ml >= 80 ? "un cucchiaio scarso" : "due cucchiaini";
+    rinse.why.push(`Acido citrico: ${ml} ml di soluzione al 15% nella vaschetta ⚘, cioè ${g} g di acido. Se non hai la soluzione pronta, sciogli ${g} g di polvere (${spoon}) in mezzo bicchiere d'acqua tiepida subito prima di avviare. Scioglie il calcare e neutralizza i residui alcalini: morbidezza senza pellicole${items.some(it => has(it, "spugna")) ? ", e la spugna resta assorbente" : ""}.`);
     if (rinse.soft && owned(pantry, "ammorbidente")) rinse.why.push("Con l'acido citrico l'ammorbidente non serve: se lo vuoi comunque, mettine metà dose, non entrambi.");
   } else if (acidOk && owned(pantry, "aceto")) {
     R.drawer.A = { id: "aceto", amount: 100, unit: "ml" };
