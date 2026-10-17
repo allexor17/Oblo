@@ -20,7 +20,7 @@ const FIBERS = {
   pelle:      { name: "Pelle / scamosciato",          code: "", fam: "pelle animale",        maxT: 0,  spin: 0 }
 };
 
-// tag: rovescio · bottoni · abbottona · zip · retina · piano · igiene · spugna · cede · attira · sport · lingerie · aparte · noAmm · chiudi · impermeabile · imbottito · visiera
+// tag: rovescio · bottoni · abbottona · zip · retina · piano · igiene · spugna · cede · attira · sport · lingerie · aparte · noAmm · chiudi · impermeabile · imbottito · visiera · coulisse
 const GARMENTS = {
   tshirt:      { name: "T-shirt",                   e: "👕", fiber: "cotone",     w: 160,  tags: [] },
   camicia:     { name: "Camicia",                   e: "👔", fiber: "cotone",     w: 220,  tags: ["bottoni"] },
@@ -73,7 +73,8 @@ const GARMENTS = {
   microfibra:  { name: "Panno in microfibra",       e: "🧽", fiber: "poliestere", w: 40,   tags: ["attira", "noAmm"] },
   tenda:       { name: "Tenda",                     e: "🪟", fiber: "poliestere", w: 1200, tags: [] },
   scarpe:      { name: "Scarpe",                    e: "👟", fiber: "misto",      w: 700,  tags: ["aparte"] },
-  zaino:       { name: "Zaino o borsa di tela",     e: "🎒", fiber: "poliestere", w: 600,  tags: ["aparte"] }
+  zaino:       { name: "Zaino o borsa di tela",     e: "🎒", fiber: "poliestere", w: 600,  tags: ["aparte"] },
+  sacchetto:   { name: "Sacchetto o shopper di stoffa", e: "🛍️", fiber: "cotone", w: 120,  tags: ["rovescio", "coulisse"] }
 };
 
 // Gruppi del selettore "Che capo è?"
@@ -82,7 +83,7 @@ const GARMENT_GROUPS = [
   { name: "Sotto", ids: ["jeans", "pantaloni", "tuta", "shorts", "gonna"] },
   { name: "Intimo e notte", ids: ["intimo", "reggiseno", "salvaslip", "assorbente", "calzini", "collant", "pigiama"] },
   { name: "Sport", ids: ["sportmaglia", "leggings", "topsport", "termica", "costume"] },
-  { name: "Giacche e accessori", ids: ["kway", "giacca", "piumino", "pile", "sciarpa", "berretto", "cappellino", "guanti", "capelli", "scarpe", "zaino"] },
+  { name: "Giacche e accessori", ids: ["kway", "giacca", "piumino", "pile", "sciarpa", "berretto", "cappellino", "guanti", "capelli", "scarpe", "zaino", "sacchetto"] },
   { name: "Bagno e cura", ids: ["asciugamano", "telo", "accappatoio", "turbante", "struccanti"] },
   { name: "Casa e letto", ids: ["lenzuolo", "federa", "copripiumino", "coprimaterasso", "cuscino", "trapunta", "tovaglia", "strofinacci", "microfibra", "tenda"] }
 ];

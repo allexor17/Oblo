@@ -260,6 +260,7 @@ function itemNotes(it, basket) {
   if (has(it, "impermeabile")) n.push("Niente ammorbidente né asciugatrice calda: tolgono l'idrorepellenza.");
   if (has(it, "zip")) n.push("Chiudi la zip: aperta graffia gli altri capi.");
   if (has(it, "chiudi")) n.push("Chiudilo, così i capi piccoli non ci finiscono dentro.");
+  if (has(it, "coulisse")) n.push("Annoda insieme le estremità del cordino: in centrifuga può sfilarsi dalla guaina o avvolgersi agli altri capi.");
   if (has(it, "lavabile")) {
     n.push("Prima del cesto: risciacquo in acqua fredda finché l'acqua esce quasi limpida.");
     n.push("Chiudi i bottoncini a pressione e mettilo in una retina: è piccolo e si perde, e le alette aperte si agganciano agli altri capi.");
@@ -749,6 +750,7 @@ function buildRecipe(items, keys, pantry, settings) {
   if (list("zip").length) ck.push(`Chiudi zip e velcro (${list("zip").join(", ")}).`);
   if (list("bottoni").length) ck.push(`Sbottona ${list("bottoni").join(", ")}: le asole tirate si sfilacciano.`);
   if (list("chiudi").length) ck.push(`Chiudi ${list("chiudi").join(", ")}: altrimenti i capi piccoli ci finiscono dentro.`);
+  if (list("coulisse").length) ck.push(`Annoda il cordino di ${list("coulisse").join(", ")}.`);
   const rov = [...new Set(items.filter(it => has(it, "rovescio") || colorGroup(it) === "scuro" || it.flags.stampa).map(it => lc(GARMENTS[it.g].name)))];
   if (rov.length) ck.push(`Rovescia ${rov.join(", ")}.`);
   if (R.retina) ck.push(`In retina: ${R.retina.join(", ")}.`);
