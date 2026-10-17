@@ -6,7 +6,7 @@
 const KEY = "oblo.v1";
 const DEF = {
   items: [], pantry: {}, seen: {}, load: [],
-  settings: { cap: 7, hard: "media", fh: "", tin: 15, price: 0.3, eco: true, quiz: false, planMode: "min", dial: "mio" },
+  settings: { cap: 7, hard: "media", fh: "", tin: 15, price: 0.3, eco: true, quiz: false, planMode: "min", dial: "mio", spins: [600, 900, 1200, 1400] },
   stats: { washes: 0, qOk: 0, qTot: 0 },
   labTab: "box", labCat: "tutti",
   timers: {}
@@ -470,6 +470,10 @@ function renderDispensa() {
     <div class="kv"><label for="tin">Acqua in ingresso<small>Circa 10°C d'inverno, 18–20°C d'estate</small></label><span class="row"><input class="num" id="tin" type="number" inputmode="decimal" data-inp="tin" value="${st.tin}"> °C</span></div>
     <div class="kv"><label for="price">Prezzo dell'energia<small>Euro al kWh, dalla bolletta</small></label><span class="row"><input class="num" id="price" type="number" step="0.01" inputmode="decimal" data-inp="price" value="${st.price}"> €</span></div>
     <div class="kv"><div class="k">Preferisci i programmi Eco<small>Più lunghi, meno energia</small></div><label class="switch"><input type="checkbox" data-act="eco" ${st.eco ? "checked" : ""} aria-label="Preferisci i programmi Eco"><span></span></label></div>
+    <div class="kv" style="grid-template-columns:1fr">
+      <div class="k">Giri di centrifuga<small>Tocca quelli che la tua lavatrice offre: Oblò sceglierà sempre tra questi il più vicino a quello ideale</small></div>
+      <div class="chips">${[400, 600, 800, 900, 1000, 1200, 1400, 1600].map(v => `<button class="chip" type="button" data-act="spinopt" data-v="${v}" aria-pressed="${(st.spins || []).includes(v)}">${v}</button>`).join("")}</div>
+    </div>
     <div class="kv" style="grid-template-columns:1fr">
       <div class="k">Nomi dei programmi<small>Con «Come la mia lavatrice» Oblò usa le scritte del tuo pannello: ${DIALS.mio.list.slice(0, 6).join(", ")}…</small></div>
       <div class="chips">${Object.entries(DIALS).map(([k, v]) => `<button class="chip" type="button" data-act="dial" data-v="${k}" aria-pressed="${(st.dial || "generico") === k}">${v.name}</button>`).join("")}</div>
@@ -1122,6 +1126,11 @@ document.addEventListener("click", e => {
       break;
     // dispensa
     case "dial": S.settings.dial = a.dataset.v; save(); render(); break;
+    case "spinopt": {
+      const v = +a.dataset.v, cur = new Set(S.settings.spins || []);
+      if (cur.has(v)) { if (cur.size > 1) cur.delete(v); else { toast("Lascia almeno un valore."); break; } } else cur.add(v);
+      S.settings.spins = [...cur].sort((x, y) => x - y); save(); render(); break;
+    }
     case "cap": S.settings.cap = Math.max(4, Math.min(14, S.settings.cap + (+a.dataset.d))); save(); render(); break;
     case "hard": S.settings.hard = a.dataset.v; S.settings.fh = ""; save(); render(); break;
     case "own": S.pantry[id] = { ...(S.pantry[id] || {}), have: !owned(S.pantry, id) }; save(); render(); if (owned(S.pantry, id)) toast(`${PRODUCTS[id].name} in dispensa.`); break;

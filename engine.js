@@ -319,7 +319,7 @@ const TONE_PAIRS = {
 };
 const FABRIC_PAIRS = {
   "cot|spu": ["lieve", "Spugna e capi lisci: niente ammorbidente per nessuno. La spugna bagnata è pesante e ruvida: qualche pelucchio e un po' di attrito sui capi lisci."],
-  "cot|sin": ["lieve", "Con i tecnici: niente ammorbidente per tutto il carico e centrifuga a 800, il cotone esce un po' più umido."],
+  "cot|sin": ["lieve", "Con i tecnici: niente ammorbidente per tutto il carico e centrifuga bassa, il cotone esce un po' più umido."],
   "cot|del": ["lieve", "I delicati vanno in retina e il carico passa a Misti 30°C con centrifuga bassa: lo sporco più ostinato viene tolto un po' meno."],
   "sin|spu": ["forte", "La spugna perde pelucchi e i tecnici li attirano; in più la spugna rinuncia ai 60°C."],
   "del|spu": ["no",    "La spugna pesante in un programma delicato non si lava bene e riempie di pelucchi i capi fragili."],
@@ -612,8 +612,21 @@ function buildRecipe(items, keys, pantry, settings) {
   // centrifuga
   let spin = Math.min(...keys.map(k => BASKETS[k].spin), ...items.map(itemSpin));
   if (items.some(it => it.fiber === "lino")) spin = Math.min(spin, 1000);
-  R.spin = snapDown(spin, SPIN_STEPS);
+  // i giri che la lavatrice offre davvero: si scende al valore disponibile più vicino, mai sopra il consigliato
+  const steps = (settings.spins && settings.spins.length ? [...settings.spins] : SPIN_STEPS).sort((a, b) => a - b);
+  const ideal = snapDown(spin, SPIN_STEPS);
+  R.spinIdeal = ideal;
+  const lower = steps.filter(v => v <= ideal).pop(), higher = steps.find(v => v > ideal);
+  // di norma si scende; si sale solo di poco, quando scendere lascerebbe i capi molto più bagnati
+  if (lower != null && (ideal - lower) / ideal <= 0.2) R.spin = lower;
+  else if (higher != null && (higher - ideal) / ideal <= 0.15) R.spin = higher;
+  else R.spin = lower ?? higher;
   const sWhy = [];
+  if (R.spin !== ideal) {
+    if (lower == null) sWhy.push(`L'ideale sarebbe ${ideal} giri, ma la tua lavatrice non scende sotto i ${R.spin}: sceglili, e se c'è l'opzione senza centrifuga usala e togli l'acqua arrotolando i capi in un asciugamano.`);
+    else if (R.spin > ideal) sWhy.push(`L'ideale sarebbe ${ideal} giri, che la tua lavatrice non ha. ${R.spin} è appena sopra e per questi capi va bene; ${lower} li lascerebbe molto più bagnati.`);
+    else sWhy.push(`L'ideale sarebbe ${ideal} giri, che la tua lavatrice non ha: si scende a ${R.spin}, il valore più vicino che non stressa le fibre.`);
+  }
   if (R.spin >= 1200) sWhy.push("Cotone e spugna reggono una centrifuga alta: escono più asciutti e si asciugano prima.");
   else if (R.spin >= 1000) sWhy.push("Giri medi: un compromesso tra capi asciutti e meno pieghe.");
   else if (R.spin >= 800) sWhy.push("Giri moderati: meno pieghe fissate nei sintetici, meno abrasione sugli scuri.");
