@@ -442,6 +442,13 @@ function compatLoad(keys, map) {
   return { level, msgs, cost };
 }
 // Quanto si può riempire il cestello per un carico che contiene queste ceste
+// Chili che un carico può contenere: quota del cestello, e sulla lavatrice di casa al massimo 3,5 kg
+// per Lava/Indossa ed Express (libretto Miele con lo stesso pannello)
+function groupCapKg(keys, settings) {
+  const kg = settings.cap * groupCapF(keys);
+  const f = new Set(keys.map(k => FABRIC[k]));
+  return settings.dial === "mio" && (f.has("del") || f.has("sin")) ? Math.min(kg, 3.5) : kg;
+}
 function groupCapF(keys) {
   const f = new Set(keys.map(k => FABRIC[k]));
   if (f.has("lan")) return keys.every(k => k === "mano") ? 0.15 : 0.25;
@@ -477,7 +484,7 @@ function planLoads(map, settings, mode) {
     // pochi capi di lana o seta, o uno-due capi nuovi che stingono: a mano nel lavandino, non serve una lavatrice
     if ((ks.every(k => k === "lana" || k === "mano") && q <= 3) || (ks.length === 1 && ks[0] === "stinge" && q <= 2) || (ks.length === 1 && ks[0] === "delicati_chiari" && q <= 2)) {
       hand[m] = 1; loads[m] = 0; pen[m] = p + 1;
-    } else loads[m] = Math.max(1, Math.ceil(w / (settings.cap * groupCapF(ks)) - 1e-9));
+    } else loads[m] = Math.max(1, Math.ceil(w / groupCapKg(ks, settings) - 1e-9));
   }
   const best = new Array(N); best[0] = { l: 0, p: 0 };
   for (let m = 1; m < N; m++) {
@@ -538,7 +545,7 @@ function buildRecipe(items, keys, pantry, settings) {
   R.gov = gov;
   const kg = items.reduce((s, it) => s + itemW(it), 0) / 1000;
   const capF = groupCapF(keys);
-  const capKg = settings.cap * capF;
+  const capKg = groupCapKg(keys, settings);
   R.kg = kg; R.capKg = capKg; R.fill = capKg ? kg / capKg : 0;
 
   // sporco del carico
@@ -822,7 +829,11 @@ function buildRecipe(items, keys, pantry, settings) {
   // riempimento
   const pct = Math.round(R.fill * 100);
   if (pk === "express") R.fillMsg = `Express: il carico occupa il ${pct}% della metà cestello che il programma regge. È pensato per pochi capi, quindi va bene anche se è leggero.`;
-  else if (R.fill > 1) R.fillMsg = `Troppo pieno (${pct}%): i capi non avrebbero spazio per cadere e si laverebbero male. Dividi il carico.`;
+  else if (R.fill > 1) {
+    const cot = keys.filter(k => FABRIC[k] === "cot" || FABRIC[k] === "spu"), soft = keys.filter(k => ["del", "sin"].includes(FABRIC[k]));
+    R.fillMsg = `Troppo pieno (${pct}% di ${fmt(R.capKg)} kg): i capi non avrebbero spazio per cadere e si laverebbero male.`
+      + (cot.length && soft.length ? ` Dividi così: ${cot.map(k => BASKETS[k].name.toLowerCase()).join(" e ")} in un lavaggio a parte, a cestello pieno; qui restano ${soft.map(k => BASKETS[k].name.toLowerCase()).join(" e ")}, che vogliono poco carico.` : " Dividi il carico in due.");
+  }
   else if (R.fill >= 0.7) R.fillMsg = `Carico pieno (${pct}%): l'acqua scaldata si divide su tanti capi. Ottimo.`;
   else if (R.fill >= 0.4) R.fillMsg = `Carico medio (${pct}%): va bene se non puoi aspettare.`;
   else R.fillMsg = `Carico leggero (${pct}%): consumi quasi la stessa acqua ed energia di un carico pieno. Se puoi, aspetta di avere più capi o unisci una cesta compatibile.`;
