@@ -24,6 +24,7 @@ const PROGRAMS = {
   lana:      { name: "Lana",                    alt: "A mano nel lavandino",        dur: "circa 45 minuti",   sinner: [2, 1, 1, 2], why: "Movimento a culla, acqua fredda e pochi giri: le scaglie della lana non hanno occasione di incastrarsi." },
   mano:      { name: "Seta / A mano",           alt: "Lana, o a mano nel lavandino", dur: "circa 40 minuti",  sinner: [2, 1, 1, 2], why: "Il minimo indispensabile su tutte e quattro le leve: le fibre proteiche fragili non reggono di più." },
   piumini:   { name: "Piumini",                 alt: "Delicati",                    dur: "circa 1,5 ore",     sinner: [2, 2, 2, 3], why: "Tanta acqua e tanti risciacqui: la piuma trattiene il detersivo e deve gonfiarsi senza grumi." },
+  express:   { name: "Rapido 20'",              alt: "Rapido o Quick",              dur: "circa 20 minuti",   sinner: [3, 2, 3, 1], why: "Un lavaggio corto a mezzo carico: tiene movimento e detersivo, ma la leva del tempo è quasi a zero. Toglie sudore fresco, polvere e l'odore di una giornata da capi indossati poco; non basta per macchie, grasso, odori ostinati o capi da igienizzare." },
   intensivo: { name: "Cotone con prelavaggio",  alt: "Intensivo",                   dur: "circa 2,5 ore",     sinner: [4, 3, 4, 4], why: "Il prelavaggio porta via lo sporco grossolano, così il detersivo del lavaggio principale non si esaurisce sul fango." }
 };
 const SINNER_LABELS = ["Chimica", "Temperatura", "Azione meccanica", "Tempo"];
@@ -46,6 +47,7 @@ function dialProgram(pk, items, synth, T, settings) {
     case "eco": return { name: "ECO 40-60", note: "" };
     case "cotone": return { name: "Cotone", note: `Imposta ${t} con il tasto della temperatura.` };
     case "intensivo": return { name: "Cotone con prelavaggio", note: "Il detersivo va sia nella vaschetta I sia nella II." };
+    case "express": return { name: "Express 20'", note: `Imposta ${t}. Al massimo metà cestello, 3,5 kg: in un ciclo così corto acqua e detersivo devono arrivare dappertutto in fretta.` };
     case "misti": return { name: "Lava/Indossa", note: `È il programma per sintetici e misti: movimento e centrifuga moderati, meno pieghe. Imposta ${t}.` };
     case "colorati": return synth
       ? { name: "Lava/Indossa", note: `La tua lavatrice non ha «Colorati»: per colorati sintetici o misti usa Lava/Indossa a ${t}. I colori li proteggono la temperatura bassa, il detersivo per colorati e gli acchiappacolore, non il nome del programma.` }
@@ -611,6 +613,19 @@ function buildRecipe(items, keys, pantry, settings) {
   const fabs = new Set(keys.map(k => FABRIC[k]));
   if (["delicati", "delicati_chiari", "sport"].includes(gov) && (fabs.has("cot") || fabs.has("spu"))) pk = "misti";
   if (gov === "stinge" && keys.includes("scuri")) pk = "scuri";
+  // Express: capi poco sporchi, senza macchie né igiene, fibre robuste, al massimo metà cestello
+  const EXPRESS_KEYS = ["bianchi", "chiari", "colorati", "scuri"];
+  R.expressWhyNot = null;
+  if (settings.express !== false && soil === "poco") {
+    const why = !keys.every(k => EXPRESS_KEYS.includes(k)) ? "in questo carico ci sono capi sportivi, delicati, lana o spugna, che vogliono un programma loro"
+      : R.igiene ? "ci sono capi da igienizzare, come intimo, calzini o lenzuola, che vogliono più tempo e temperatura"
+      : items.some(it => it.flags.macchia) ? "c'è una macchia: enzimi e ossigeno attivo hanno bisogno di tempo"
+      : items.some(it => it.flags.nuovo) ? "c'è un capo nuovo, che può ancora stingere"
+      : kg > settings.cap * 0.5 ? `il carico pesa ${fmt(kg)} kg e l'Express ne regge al massimo metà cestello: dividerlo in due lavaggi corti consumerebbe più acqua di un lavaggio normale`
+      : null;
+    if (why) R.expressWhyNot = why;
+    else { pk = "express"; T = Math.min(T, 40); R.T = T; R.capKg = settings.cap * 0.5; R.fill = kg / R.capKg; }
+  }
   R.mixed = keys.length > 1;
   R.program = PROGRAMS[pk]; R.pk = pk;
   const dp = dialProgram(pk, items, synth, T, settings);
@@ -620,6 +635,7 @@ function buildRecipe(items, keys, pantry, settings) {
   // centrifuga
   let spin = Math.min(...keys.map(k => BASKETS[k].spin), ...items.map(itemSpin));
   if (items.some(it => it.fiber === "lino")) spin = Math.min(spin, 1000);
+  if (pk === "express") spin = Math.min(spin, 1200);
   // i giri che la lavatrice offre davvero: si scende al valore disponibile più vicino, mai sopra il consigliato
   const steps = (settings.spins && settings.spins.length ? [...settings.spins] : SPIN_STEPS).sort((a, b) => a - b);
   const ideal = snapDown(spin, SPIN_STEPS);
@@ -645,7 +661,8 @@ function buildRecipe(items, keys, pantry, settings) {
   R.g = gForce(R.spin); R.moist = residualMoisture(R.spin);
 
   // detersivo
-  const pref = DETERGENT_PREF[gov] || DETERGENT_PREF.colorati;
+  let pref = DETERGENT_PREF[gov] || DETERGENT_PREF.colorati;
+  if (pk === "express") pref = [...pref.filter(id => id !== "polvere"), ...pref.filter(id => id === "polvere")];
   const det = pref.find(id => owned(pantry, id));
   const hardF = HARD[settings.hard].f, soilF = SOIL[soil].f, loadF = R.fill < 0.5 ? 0.75 : 1;
   R.detIdeal = pref[0];
@@ -665,6 +682,7 @@ function buildRecipe(items, keys, pantry, settings) {
     if (det === "capsule") why.push("La capsula ha una dose fissa: non puoi adattarla a carico e durezza. Per i mezzi carichi un liquido dosabile spreca meno.");
     if (det !== pref[0]) why.push(`L'ideale sarebbe ${lc(PRODUCTS[pref[0]].name)}, che non hai in dispensa: ${DET_REASON[pref[0]] || ""}`);
     else why.push(`Hai il prodotto giusto: ${DET_REASON[det] || ""}`);
+    if (pk === "express") why.push(det === "polvere" ? "Nell'Express il detersivo ha pochi minuti: sciogli la polvere in un bicchiere d'acqua tiepida, o meglio usa un liquido, che si scioglie subito e si risciacqua meglio." : "Nell'Express un liquido è la scelta giusta: si scioglie subito e in un ciclo corto si risciacqua bene.");
     if (det === "polvere" && T <= 30) why.push("A 30°C la polvere può non sciogliersi del tutto: sciogli la dose in un bicchiere d'acqua tiepida prima di versarla.");
     if (det === "polvere" && ["chiari", "colorati", "spugna_col", "stinge"].includes(gov)) why.push("Attenzione: la polvere contiene sbiancanti ottici e ossigeno attivo, che possono alterare i colori. Se puoi, usa un liquido per colorati.");
     R.detergent = { id: det, amount, unit, where, why };
@@ -689,7 +707,7 @@ function buildRecipe(items, keys, pantry, settings) {
   const whiteish = ["bianchi", "spugna_chiara"].includes(gov) || (gov === "pesante" && items.every(it => ["bianco", "chiaro"].includes(colorGroup(it))));
   const tannic = items.some(it => ["vino", "caffe", "frutta", "erba", "cioccolato", "sudore"].includes(it.flags.macchia));
   const percDose = kg < 2.5 ? 15 : kg < 5 ? 20 : 30;
-  if (!noOx) {
+  if (!noOx && pk !== "express") {
     const withPowder = R.detergent && R.detergent.id === "polvere";
     if (whiteish) {
       if (owned(pantry, "percarbonato")) {
@@ -780,6 +798,7 @@ function buildRecipe(items, keys, pantry, settings) {
   if (items.some(it => it.flags.peli)) ck.push("Togli i peli con un rullo adesivo prima di bagnare i capi.");
   if (R.stains.length) ck.push("Pretratta le macchie (qui sotto).");
   if (R.fill > 1) ck.push("Il cestello è troppo pieno: dividi in due lavaggi.");
+  else if (pk === "express") ck.push("Express: al massimo metà cestello, senza pressare.");
   else ck.push(capF >= 1 ? "Carica senza pressare: resta lo spazio di un palmo sopra i capi." : `Per questo programma riempi al massimo ${capF >= 0.5 ? "metà" : capF >= 0.3 ? "un terzo" : "un quarto"} del cestello.`);
   R.checklist = ck;
 
@@ -793,7 +812,8 @@ function buildRecipe(items, keys, pantry, settings) {
 
   // riempimento
   const pct = Math.round(R.fill * 100);
-  if (R.fill > 1) R.fillMsg = `Troppo pieno (${pct}%): i capi non avrebbero spazio per cadere e si laverebbero male. Dividi il carico.`;
+  if (pk === "express") R.fillMsg = `Express: il carico occupa il ${pct}% della metà cestello che il programma regge. È pensato per pochi capi, quindi va bene anche se è leggero.`;
+  else if (R.fill > 1) R.fillMsg = `Troppo pieno (${pct}%): i capi non avrebbero spazio per cadere e si laverebbero male. Dividi il carico.`;
   else if (R.fill >= 0.7) R.fillMsg = `Carico pieno (${pct}%): l'acqua scaldata si divide su tanti capi. Ottimo.`;
   else if (R.fill >= 0.4) R.fillMsg = `Carico medio (${pct}%): va bene se non puoi aspettare.`;
   else R.fillMsg = `Carico leggero (${pct}%): consumi quasi la stessa acqua ed energia di un carico pieno. Se puoi, aspetta di avere più capi o unisci una cesta compatibile.`;

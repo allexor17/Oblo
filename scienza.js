@@ -1017,6 +1017,30 @@ const CARDS = [
     rel: ["pelucchi", "neri_grigi", "rovescio"]
   },
   {
+    id: "express", cat: "ecologia",
+    title: "Express 20': quando basta un lavaggio rapido",
+    ask: "Una maglietta indossata una sera, senza macchie, esce davvero pulita da 20 minuti di lavatrice?",
+    opts: [
+      ["No, sotto un'ora non si lava niente", false, "Per lo sporco leggero il tempo conta meno: il detersivo stacca in pochi minuti sudore fresco e polvere."],
+      ["Sì, se lo sporco è poco e fresco: i tensioattivi fanno il grosso del lavoro in pochi minuti", true],
+      ["Sì, qualunque cosa, basta mettere più detersivo", false, "In un ciclo corto il detersivo in più si risciacqua male, e non sostituisce il tempo che serve a enzimi e ossigeno attivo."]
+    ],
+    body: [
+      "Nel cerchio di Sinner l'Express porta quasi a zero la leva del <b>tempo</b>. Funziona quando c'è poco da fare: sudore fresco, polvere, l'odore di una giornata. Lo sporco fresco non ha ancora avuto il tempo di ossidarsi e di aggrapparsi alla fibra, e i tensioattivi lo staccano in pochi minuti.",
+      "Non basta quando il lavoro richiede tempo: gli enzimi impiegano decine di minuti a spezzare proteine e amidi delle macchie, l'ossigeno attivo vuole calore e tempo, e il sebo vecchio sui sintetici si stacca piano. Per questo Oblò lo esclude con macchie, capi sportivi, intimo, asciugamani e tutto ciò che va igienizzato.",
+      "Ha un limite di carico, di solito metà cestello: in un ciclo così corto acqua e detersivo devono raggiungere ogni capo in fretta. Dividere un carico pieno in due Express non è più ecologico, perché due lavaggi consumano più acqua di uno.",
+      "Meglio un detersivo liquido, che si scioglie subito, e una dose ridotta: la polvere in un ciclo di 20 minuti rischia di restare nelle fibre."
+    ],
+    ana: "Come lavarsi le mani: dopo aver sfogliato un libro bastano pochi secondi d'acqua e sapone, dopo aver impastato la carne ti serve molto di più. Il sapone è lo stesso: cambia quanto lavoro c'è da fare.",
+    pratica: [
+      "Per capi indossati poco, senza macchie né odori forti.",
+      "Al massimo metà cestello.",
+      "Detersivo liquido, dose ridotta, 30–40°C.",
+      "Non per intimo, asciugamani, capi sportivi, macchie o capi da igienizzare."
+    ],
+    rel: ["sinner", "dose", "lavare_meno"]
+  },
+  {
     id: "rigido", cat: "fisica",
     title: "Perché il bucato steso esce rigido",
     ask: "Gli asciugamani usciti dalla lavatrice morbidi diventano rigidi come cartone dopo una giornata sullo stendino. Cosa è successo mentre asciugavano?",

@@ -6,7 +6,7 @@
 const KEY = "oblo.v1";
 const DEF = {
   items: [], pantry: {}, seen: {}, load: [],
-  settings: { cap: 7, hard: "media", fh: "", tin: 15, price: 0.3, eco: true, quiz: false, planMode: "min", dial: "mio", spins: [600, 900, 1200, 1400] },
+  settings: { cap: 7, hard: "media", fh: "", tin: 15, price: 0.3, eco: true, quiz: false, planMode: "min", dial: "mio", spins: [600, 900, 1200, 1400], express: true },
   stats: { washes: 0, qOk: 0, qTot: 0 },
   labTab: "box", labCat: "tutti",
   timers: {}
@@ -480,6 +480,7 @@ function renderDispensa() {
     <div class="kv"><label for="tin">Acqua in ingresso<small>Circa 10°C d'inverno, 18–20°C d'estate</small></label><span class="row"><input class="num" id="tin" type="number" inputmode="decimal" data-inp="tin" value="${st.tin}"> °C</span></div>
     <div class="kv"><label for="price">Prezzo dell'energia<small>Euro al kWh, dalla bolletta</small></label><span class="row"><input class="num" id="price" type="number" step="0.01" inputmode="decimal" data-inp="price" value="${st.price}"> €</span></div>
     <div class="kv"><div class="k">Preferisci i programmi Eco<small>Più lunghi, meno energia</small></div><label class="switch"><input type="checkbox" data-act="eco" ${st.eco ? "checked" : ""} aria-label="Preferisci i programmi Eco"><span></span></label></div>
+    <div class="kv"><div class="k">Lavaggio rapido per i capi poco sporchi<small>Express 20' quando tutto il carico è poco sporco, senza macchie né capi da igienizzare, e sta in metà cestello</small></div><label class="switch"><input type="checkbox" data-act="express" ${st.express !== false ? "checked" : ""} aria-label="Lavaggio rapido per i capi poco sporchi"><span></span></label></div>
     <div class="kv" style="grid-template-columns:1fr">
       <div class="k">Giri di centrifuga<small>Tocca quelli che la tua lavatrice offre: Oblò sceglierà sempre tra questi il più vicino a quello ideale</small></div>
       <div class="chips">${[400, 600, 800, 900, 1000, 1200, 1400, 1600].map(v => `<button class="chip" type="button" data-act="spinopt" data-v="${v}" aria-pressed="${(st.spins || []).includes(v)}">${v}</button>`).join("")}</div>
@@ -583,7 +584,7 @@ function renderLavatrice() {
       <div><small>Temperatura</small><b>${R.T}°C</b></div>
       <div><small>Centrifuga</small><b>${R.spin}</b></div>
     </div>
-    <details class="why"><summary>Perché questo programma</summary><div class="why-body"><p>${R.program.why}</p>${R.progNote ? `<p><b>Sul tuo pannello</b><br>${R.progNote} Durata indicativa: ${R.program.dur}.</p>` : (S.settings.dial === "mio" ? `<p>Durata indicativa: ${R.program.dur}.</p>` : (R.program.alt ? `<p>Se la tua lavatrice non ce l'ha: <b>${R.program.alt}</b>. Durata indicativa: ${R.program.dur}.</p>` : ""))}
+    <details class="why"><summary>Perché questo programma</summary><div class="why-body"><p>${R.program.why}</p>${R.expressWhyNot ? `<p><b>Perché non Express:</b> ${R.expressWhyNot}.</p>` : ""}${R.progNote ? `<p><b>Sul tuo pannello</b><br>${R.progNote} Durata indicativa: ${R.program.dur}.</p>` : (S.settings.dial === "mio" ? `<p>Durata indicativa: ${R.program.dur}.</p>` : (R.program.alt ? `<p>Se la tua lavatrice non ce l'ha: <b>${R.program.alt}</b>. Durata indicativa: ${R.program.dur}.</p>` : ""))}
       <div><b class="small">Il cerchio di Sinner di questo programma</b><div class="sinner">${R.program.sinner.map((v, i) => `<div class="sr"><span>${SINNER_LABELS[i]}</span><span class="pips">${[1, 2, 3, 4, 5].map(n => `<i class="${n <= v ? "on" : ""}"></i>`).join("")}</span></div>`).join("")}</div></div>
       <p class="small">Quattro leve: chimica, temperatura, azione meccanica, tempo. Se una scende, le altre devono salire per lo stesso pulito. <button class="btn plain sm" type="button" data-act="card" data-id="sinner">Approfondisci</button></p></div></details>
     <details class="why"><summary>Perché ${R.T}°C</summary><div class="why-body">${R.tempWhy.map(t => `<p>${t}</p>`).join("")}
@@ -1207,6 +1208,7 @@ document.addEventListener("change", e => {
   const act = el.dataset.act, inp = el.dataset.inp;
   if (act === "quiz") { S.settings.quiz = el.checked; save(); render(); return; }
   if (act === "eco") { S.settings.eco = el.checked; save(); return; }
+  if (act === "express") { S.settings.express = el.checked; save(); return; }
   if (act === "d-flag" && D) { D.flags[el.dataset.v] = el.checked; renderAdd(); return; }
   if (act === "d-stain" && D) { D.flags.macchia = el.value; return; }
   if (inp === "fh") {
