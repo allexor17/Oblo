@@ -184,6 +184,10 @@ function basketWarnings(k, its) {
   if (cede.length && attira.length) w.push(`${cap1(names(cede))} perde pelucchi e ${names(attira)} li attira: rovescia i secondi o lavali in due volte.`);
   const magnets = its.filter(isMagnet), darker = its.filter(it => !isMagnet(it) && (colorGroup(it) === "scuro" || (it.flags.nuovo && colorOf(it).hot)));
   if (magnets.length && darker.length) w.push(`${cap1(names(magnets))} è nylon chiaro e prende il colore di ${names(darker)}: lavalo con i chiari, o da solo.`);
+  if (["sport", "lana", "mano"].includes(k)) {
+    const light = its.filter(it => ["bianco", "chiaro"].includes(colorGroup(it))), dark = its.filter(it => colorGroup(it) === "scuro");
+    if (light.length && dark.length) w.push(`In questa cesta ci sono capi chiari (${names(light)}) e scuri (${names(dark)}): lavali in due volte, oppure i chiari a mano.`);
+  }
   if (k === "stinge" && new Set(its.map(it => it.color)).size > 1) w.push("Qui ci sono colori diversi: i capi che stingono vanno lavati da soli o solo con capi dello stesso colore.");
   if (k === "piumini" && qtyOf(its) > 1) w.push("Un piumino alla volta: ha bisogno di spazio per gonfiarsi.");
   const lim = its.filter(it => it.label && /^\d+$/.test(it.label) && +it.label < BASKETS[k].temp);
@@ -227,7 +231,13 @@ function planHTML(map) {
 function handHTML(g, map) {
   const its = g.keys.flatMap(k => map[k]);
   const wool = g.keys.some(k => k === "lana" || k === "mano");
-  const steps = wool ? [
+  const lightDel = !wool && g.keys.includes("delicati_chiari");
+  const steps = lightDel ? [
+    "Bacinella d'acqua fredda o appena tiepida con un goccio di detersivo delicato, sciolto prima di immergere il capo.",
+    "Immergi e muovi piano il capo per qualche minuto, senza strofinare: la viscosa bagnata perde metà della sua resistenza.",
+    "Risciacqua finché l'acqua non fa più schiuma.",
+    "Premi il capo in un asciugamano invece di strizzarlo, poi stendilo su una gruccia, all'ombra."
+  ] : wool ? [
     "Bacinella d'acqua a 20–30°C con un cucchiaio di detersivo per lana (o di shampoo neutro), sciolto prima di immergere il capo.",
     "Immergi e premi delicatamente per 3–5 minuti. Niente strofinare né torcere: è lo sfregamento a far agganciare le scaglie della lana.",
     "Risciacqua in acqua alla stessa temperatura finché non fa più schiuma: lo sbalzo termico favorisce il feltro.",
@@ -240,8 +250,8 @@ function handHTML(g, map) {
   ];
   return `<div class="load hand"><div class="load-sw">${g.keys.map(swatch).join("")}</div><div class="load-body">
     <b>A mano nel lavandino</b><p class="load-names">${cap1(names(its, 4))}</p>
-    <p class="small muted">${wool ? "Per pochi capi di lana o seta non vale la pena di avviare una lavatrice: a mano ci vogliono dieci minuti." : "Uno o due capi nuovi che stingono: lavarli a mano a freddo costa meno di una lavatrice, e vedi quanto colore rilasciano."}</p>
-    <div class="row" style="margin-top:10px"><button class="btn sm" type="button" data-act="guide" data-id="${wool ? (g.keys.includes("mano") && !g.keys.includes("lana") ? "seta_mano" : "lana_mano") : "stinge_mano"}">Apri la guida</button>
+    <p class="small muted">${lightDel ? "Uno o due delicati chiari non possono andare con gli scuri, e da soli non riempiono una lavatrice: a mano ci vogliono dieci minuti." : wool ? "Per pochi capi di lana o seta non vale la pena di avviare una lavatrice: a mano ci vogliono dieci minuti." : "Uno o due capi nuovi che stingono: lavarli a mano a freddo costa meno di una lavatrice, e vedi quanto colore rilasciano."}</p>
+    <div class="row" style="margin-top:10px"><button class="btn sm" type="button" data-act="guide" data-id="${lightDel ? "viscosa_mano" : wool ? (g.keys.includes("mano") && !g.keys.includes("lana") ? "seta_mano" : "lana_mano") : "stinge_mano"}">Apri la guida</button>
     <button class="btn ghost sm" type="button" data-act="hand-done" data-keys="${g.keys.join(",")}">Fatto, segna come lavato</button></div></div></div>`;
 }
 function removeBaskets(keys) {

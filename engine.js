@@ -71,6 +71,7 @@ const BASKET_CARDS = {
   spugna_col: ["ammorbidente", "rigido", "sessanta", "pelucchi"],
   sport: ["sport_odori", "microplastiche"],
   delicati: ["viscosa", "centrifuga"],
+  delicati_chiari: ["viscosa", "centrifuga", "neri_grigi"],
   lana: ["lana_feltro", "maglia_piano", "enzimi"],
   mano: ["enzimi", "lana_feltro"],
   piumini: ["piumini"],
@@ -154,6 +155,8 @@ function sortItem(it) {
   const grp = colorGroup(it);
   const gname = G.name, col = lc(C.name), fib = lc(F.name);
   const out = (basket, why, cards) => ({ basket, why, notes: itemNotes(it, basket), cards: cards || BASKET_CARDS[basket] || [] });
+  // i delicati si dividono per colore: chiari da una parte, colorati e scuri dall'altra
+  const delB = grp === "bianco" || grp === "chiaro" ? "delicati_chiari" : "delicati";
 
   if (it.label === "no") return out("nolav", "Sull'etichetta c'è la vaschetta barrata: niente acqua. Il tessuto, le imbottiture o le finiture non lo reggerebbero. Cerca il cerchio sull'etichetta: ti dice quale pulizia professionale chiedere in tintoria.");
   if (it.fiber === "pelle" && it.g === "scarpe") return out("nolav", "Le scarpe di pelle non vanno in acqua: perderebbero gli oli che le tengono morbide e asciugando si crepano. Si puliscono a mano, con spazzola, panno appena umido e crema: trovi la guida nella Bacinella.", ["restringimento"]);
@@ -197,20 +200,20 @@ function sortItem(it) {
     return out("sport", `${gname} in polipropilene: è la più leggera tra le fibre tessili comuni, galleggia sull'acqua e non ne assorbe quasi niente. Per questo asciuga in un attimo, ma è anche oleofila: trattiene il sebo, e il sebo fa puzza. E fonde intorno ai 165°C, molto prima di poliestere e nylon: niente asciugatrice, niente ferro, niente termosifone. 30°C, detersivo enzimatico, niente ammorbidente, e lavala presto dopo l'allenamento.`, ["polipropilene", "sport_odori"]);
   if (has(it, "sport") || it.fiber === "tecnico") {
     if (it.g === "costume")
-      return out("delicati", "Il costume è ricchissimo di elastan, che teme calore, cloro e sfregamenti: retina e programma delicati a 30°C, oppure a mano. Sciacqualo con acqua dolce appena torni dal mare o dalla piscina.");
+      return out(delB, "Il costume è ricchissimo di elastan, che teme calore, cloro e sfregamenti: retina e programma delicati a 30°C, oppure a mano. Sciacqualo con acqua dolce appena torni dal mare o dalla piscina.");
     return out("sport", "Il tessuto tecnico è oleofilo: trattiene il sebo, che a bassa temperatura resta e puzza. La sua trama porta via il sudore, e l'ammorbidente la otturerebbe. Lavaggio a 30–40°C, detersivo enzimatico, niente ammorbidente.");
   }
 
   if (has(it, "lingerie"))
-    return out("delicati", `${gname}: ferretti, gancetti, pizzi ed elastici si deformano con il rotolamento e la centrifuga alta, e i gancetti aperti si agganciano agli altri capi. In retina, nel carico dei delicati.`);
+    return out(delB, `${gname}: ferretti, gancetti, pizzi ed elastici si deformano con il rotolamento e la centrifuga alta, e i gancetti aperti si agganciano agli altri capi. In retina, nel carico dei delicati.`);
   if (it.fiber === "lyocell")
-    return out("delicati", "Lyocell e Tencel sono cellulosa rigenerata, più resistente della viscosa, ma da bagnati si sfibrillano: lo sfregamento solleva microfibrille in superficie e il capo prende un velo biancastro, come una pelle di pesca. Al rovescio, 30°C, centrifuga bassa, cestello non stipato.", ["neri_grigi", "viscosa"]);
+    return out(delB, "Lyocell e Tencel sono cellulosa rigenerata, più resistente della viscosa, ma da bagnati si sfibrillano: lo sfregamento solleva microfibrille in superficie e il capo prende un velo biancastro, come una pelle di pesca. Al rovescio, 30°C, centrifuga bassa, cestello non stipato.", ["neri_grigi", "viscosa"]);
   if (it.fiber === "viscosa")
-    return out("delicati", "La viscosa è cellulosa rigenerata: bagnata perde circa metà della sua resistenza e si deforma o si restringe facilmente. Delicati a 30°C, centrifuga bassa, in retina.");
+    return out(delB, "La viscosa è cellulosa rigenerata: bagnata perde circa metà della sua resistenza e si deforma o si restringe facilmente. Delicati a 30°C, centrifuga bassa, in retina.");
   if (it.fiber === "acrilico")
-    return out("delicati", "L'acrilico si deforma col calore e fa pallini con lo sfregamento: programma delicati o lana, 30°C, centrifuga bassa.");
+    return out(delB, "L'acrilico si deforma col calore e fa pallini con lo sfregamento: programma delicati o lana, 30°C, centrifuga bassa.");
   if (it.flags.decorazioni)
-    return out("delicati", "Paillettes, perline e applicazioni si staccano con l'azione meccanica e graffiano gli altri capi: al rovescio, in retina, programma delicati.");
+    return out(delB, "Paillettes, perline e applicazioni si staccano con l'azione meccanica e graffiano gli altri capi: al rovescio, in retina, programma delicati.");
 
   if (has(it, "spugna")) {
     const light = grp === "bianco" || grp === "chiaro";
@@ -301,8 +304,8 @@ function quizOptions(it, correct) {
 // Il livello di una coppia è il peggiore dei due.
 const LEVELS = { ok: 0, lieve: 1, forte: 3, no: 99 };
 const LEVEL_NAME = { ok: "va bene", lieve: "piccolo compromesso", forte: "compromesso forte", no: "da evitare" };
-const FABRIC = { bianchi: "cot", chiari: "cot", colorati: "cot", scuri: "cot", stinge: "cot", spugna_chiara: "spu", spugna_col: "spu", sport: "sin", delicati: "del", lana: "lan", mano: "lan", piumini: "piu", pesante: "pes", nolav: "nol" };
-const DEFAULT_TONE = { bianchi: "W", chiari: "L", colorati: "C", scuri: "D", spugna_chiara: "W", spugna_col: "C", stinge: "C", sport: "C", delicati: "C", lana: "C", mano: "L", piumini: "D", pesante: "C", nolav: "C" };
+const FABRIC = { bianchi: "cot", chiari: "cot", colorati: "cot", scuri: "cot", stinge: "cot", spugna_chiara: "spu", spugna_col: "spu", sport: "sin", delicati: "del", delicati_chiari: "del", lana: "lan", mano: "lan", piumini: "piu", pesante: "pes", nolav: "nol" };
+const DEFAULT_TONE = { bianchi: "W", chiari: "L", colorati: "C", scuri: "D", spugna_chiara: "W", spugna_col: "C", stinge: "C", sport: "C", delicati: "C", delicati_chiari: "L", lana: "C", mano: "L", piumini: "D", pesante: "C", nolav: "C" };
 const TONE_RANK = { W: 0, L: 1, C: 2, D: 3 };
 function basketTone(k, its) {
   if (!its || !its.length) return DEFAULT_TONE[k] || "C";
@@ -391,6 +394,10 @@ function compatPair(a, b, map) {
   else if (b === "stinge") tone = bleedPair(tb, a, ta);
   else tone = tonePair(ta, tb);
   tone = worse(tone, magnetPair(a, b, ta, tb, map));
+  if (a === "delicati_chiari" || b === "delicati_chiari") {
+    const other = a === "delicati_chiari" ? b : a, to = a === "delicati_chiari" ? tb : ta;
+    if (other === "stinge" || to === "D") tone = ["no", "Delicati chiari con capi scuri: la viscosa è cellulosa e prende il colorante come il cotone, ma non si può recuperare dopo, perché non regge né 60°C né sbiancanti. Il colore resterebbe per sempre."];
+  }
   const fab = fabricPair(FABRIC[a], FABRIC[b]);
   // terza dimensione: chi ha bisogno dei 60°C per l'igiene li perde?
   let heat = ["ok", ""];
@@ -464,7 +471,7 @@ function planLoads(map, settings, mode) {
     if (!ok) continue;
     feas[m] = 1; pen[m] = p;
     // pochi capi di lana o seta, o uno-due capi nuovi che stingono: a mano nel lavandino, non serve una lavatrice
-    if ((ks.every(k => k === "lana" || k === "mano") && q <= 3) || (ks.length === 1 && ks[0] === "stinge" && q <= 2)) {
+    if ((ks.every(k => k === "lana" || k === "mano") && q <= 3) || (ks.length === 1 && ks[0] === "stinge" && q <= 2) || (ks.length === 1 && ks[0] === "delicati_chiari" && q <= 2)) {
       hand[m] = 1; loads[m] = 0; pen[m] = p + 1;
     } else loads[m] = Math.max(1, Math.ceil(w / (settings.cap * groupCapF(ks)) - 1e-9));
   }
@@ -572,6 +579,7 @@ function buildRecipe(items, keys, pantry, settings) {
     spugna_col: T >= 60 ? "60°C per l'igiene: i colori della spugna di solito lo reggono, ma controlla l'etichetta." : "40°C per proteggere i colori: aggiungi ossigeno attivo per avvicinarti all'igiene dei 60°C.",
     sport: "30°C: l'elastan perde elasticità col calore, e il sebo lo attaccano gli enzimi più che la temperatura.",
     delicati: "30°C: viscosa, pizzi ed elastici si deformano con il calore.",
+    delicati_chiari: "30°C: viscosa, pizzi ed elastici si deformano con il calore.",
     lana: "30°C al massimo, meglio a freddo: il calore apre le scaglie della lana e prepara il feltro.",
     mano: "Acqua fredda o al massimo tiepida: le fibre proteiche si danneggiano col calore.",
     piumini: "30°C con detersivo neutro: la cheratina della piuma non ama né calore né alcalinità.",
@@ -590,7 +598,7 @@ function buildRecipe(items, keys, pantry, settings) {
     case "colorati": pk = synth ? "misti" : "colorati"; break;
     case "scuri": pk = "scuri"; break;
     case "sport": pk = "sport"; break;
-    case "delicati": pk = "delicati"; break;
+    case "delicati": case "delicati_chiari": pk = "delicati"; break;
     case "lana": pk = "lana"; break;
     case "mano": pk = "mano"; break;
     case "piumini": pk = "piumini"; break;
@@ -601,7 +609,7 @@ function buildRecipe(items, keys, pantry, settings) {
   if (gov === "pesante" && items.every(it => has(it, "aparte"))) pk = "delicati";
   if (pk === "eco" && T < 40) pk = R.mixedTones ? "colorati" : "cotone";
   const fabs = new Set(keys.map(k => FABRIC[k]));
-  if (["delicati", "sport"].includes(gov) && (fabs.has("cot") || fabs.has("spu"))) pk = "misti";
+  if (["delicati", "delicati_chiari", "sport"].includes(gov) && (fabs.has("cot") || fabs.has("spu"))) pk = "misti";
   if (gov === "stinge" && keys.includes("scuri")) pk = "scuri";
   R.mixed = keys.length > 1;
   R.program = PROGRAMS[pk]; R.pk = pk;
@@ -677,7 +685,7 @@ function buildRecipe(items, keys, pantry, settings) {
 
   // additivi
   const add = (id, level, amount, where, why) => R.additives.push({ id, level, amount, where, why });
-  const noOx = ["lana", "mano", "piumini", "delicati", "scuri", "stinge"].includes(gov) || keys.some(k => ["lana", "mano", "piumini"].includes(k));
+  const noOx = ["lana", "mano", "piumini", "delicati", "delicati_chiari", "scuri", "stinge"].includes(gov) || keys.some(k => ["lana", "mano", "piumini"].includes(k));
   const whiteish = ["bianchi", "spugna_chiara"].includes(gov) || (gov === "pesante" && items.every(it => ["bianco", "chiaro"].includes(colorGroup(it))));
   const tannic = items.some(it => ["vino", "caffe", "frutta", "erba", "cioccolato", "sudore"].includes(it.flags.macchia));
   const percDose = kg < 2.5 ? 15 : kg < 5 ? 20 : 30;
@@ -799,7 +807,7 @@ function buildRecipe(items, keys, pantry, settings) {
   if (["colorati", "scuri", "spugna_col", "chiari", "stinge"].includes(gov)) after.push("All'ombra e al rovescio: gli UV spezzano anche i cromofori dei tuoi colori.");
   if (items.some(it => has(it, "spugna"))) after.push("Spugna: sbattila forte prima di stenderla e di nuovo quando è asciutta, oppure 10 minuti di asciugatrice: il movimento rompe i legami tra le fibre e i riccioli tornano morbidi.");
   if (gov === "sport") after.push("Subito all'aria, niente asciugatrice calda: l'elastan oltre i 60°C perde elasticità.");
-  if (gov === "delicati") after.push("Su gruccia o in piano, senza strizzare.");
+  if (gov === "delicati" || gov === "delicati_chiari") after.push("Su gruccia o in piano, senza strizzare.");
   if (["lana", "mano"].includes(gov)) after.push("Arrotola il capo in un asciugamano per togliere l'acqua, poi in piano all'ombra, riportandolo alla sua forma.");
   if (gov === "piumini") after.push("Asciugatrice a bassa temperatura con 2–3 palline, più cicli, finché è asciutto anche dentro: i grumi umidi ammuffiscono.");
   if (gov === "stinge") after.push("Stendilo separato: anche umido può macchiare i capi vicini sullo stendino.");

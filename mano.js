@@ -19,7 +19,7 @@ const HANDS = {
 
 const GUIDE_GROUPS = [
   { name: "Ammolli", ids: ["assorbenti", "ammollo_bianchi", "stinge_mano"] },
-  { name: "A mano", ids: ["lana_mano", "seta_mano", "delicati_mano"] },
+  { name: "A mano", ids: ["lana_mano", "seta_mano", "viscosa_mano", "delicati_mano"] },
   { name: "Oggetti difficili", ids: ["scarpe_tela", "scarpe_pelle", "zaino"] },
   { name: "Senza lavare tutto", ids: ["smacchiare", "rinfrescare"] }
 ];
@@ -128,6 +128,29 @@ const GUIDES = {
     cards: ["lana_feltro", "mani", "mano_o_lavatrice"]
   },
 
+  viscosa_mano: {
+    name: "Viscosa e delicati chiari a mano", e: "👚",
+    sub: "Acqua fredda, poco movimento e niente strizzare",
+    method: "A mano", time: "10 minuti", water: "Fredda o appena tiepida, sotto i 30°C", skin: "no",
+    skinWhy: "Pochi minuti con un detersivo delicato: basta asciugare bene le mani dopo.",
+    when: "Per uno o due capi chiari in viscosa, modal o cupro: non possono andare con gli scuri, e da soli non vale la pena di avviare una lavatrice.",
+    products: [
+      { ids: ["lana", "liq_univ", "liq_colori"], note: "un cucchiaino in 3–4 litri d'acqua fredda" }
+    ],
+    tools: ["bacinella"],
+    steps: [
+      { t: "Sciogli prima il detersivo", d: "Nell'acqua fredda, mescolando, poi immergi il capo: il detersivo concentrato su un punto lascia aloni." },
+      { t: "Muovi piano", d: "3–5 minuti, immergendo e sollevando il capo senza strofinarlo. Bagnata, la viscosa perde circa metà della sua resistenza: lo sfregamento la deforma e la fa sfilacciare." },
+      { t: "Insisti solo dove serve", d: "Sotto le ascelle e sul colletto, premi il tessuto tra le dita invece di sfregarlo." },
+      { t: "Risciacqua", d: "In acqua pulita alla stessa temperatura, finché non fa più schiuma." },
+      { t: "Togli l'acqua senza torcere", d: "Arrotola il capo in un asciugamano asciutto e premi. Torcerlo da bagnato lo allungherebbe in modo permanente." },
+      { t: "Stendi su una gruccia, all'ombra", d: "Dagli la forma con le mani mentre è umido. Se serve, stira al rovescio con il ferro tiepido." }
+    ],
+    avoid: ["Acqua calda: la viscosa si restringe.", "Strizzare o torcere.", "Lasciarla in ammollo a lungo.", "Lavarla insieme a capi scuri: prende il colore come il cotone, ma non si può sbiancare dopo."],
+    eco: "Pochi litri d'acqua fredda: molto meno di una lavatrice avviata per un capo solo.",
+    why: "La viscosa è cellulosa del legno sciolta e rifilata: le sue catene sono più corte e meno ordinate di quelle del cotone, e l'acqua che entra tra una catena e l'altra le separa ancora di più. Per questo da bagnata è così fragile e torna resistente quando asciuga.",
+    cards: ["viscosa", "centrifuga"]
+  },
   seta_mano: {
     name: "Seta a mano", e: "🪭",
     sub: "Freddo, detergente neutro e un goccio di acido nel risciacquo",
@@ -298,6 +321,7 @@ function guideFor(it) {
   if (it.fiber === "lana" || it.fiber === "cashmere") return "lana_mano";
   if (it.fiber === "seta") return "seta_mano";
   if (tags.includes("lingerie")) return "delicati_mano";
+  if (["viscosa", "lyocell"].includes(it.fiber)) return "viscosa_mano";
   if (it._b === "stinge") return "stinge_mano";
   return null;
 }

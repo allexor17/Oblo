@@ -122,7 +122,8 @@ const BASKETS = {
   spugna_chiara: { name: "Spugna chiara",           sub: "Asciugamani e strofinacci chiari: igiene a 60°C, niente ammorbidente", dot: "#E9F3F9", temp: 60, spin: 1400, capF: 1 },
   spugna_col:    { name: "Spugna colorata",         sub: "Asciugamani colorati: igiene senza perdere il colore",              dot: "#5BB07B",  temp: 40, tempIg: 60, spin: 1400, capF: 1 },
   sport:         { name: "Sport e tecnici",         sub: "Sintetici che trattengono sebo e odori",                            dot: "#2FB5A3",  temp: 30, spin: 800,  capF: 0.5 },
-  delicati:      { name: "Delicati",                sub: "Viscosa, pizzi, collant, decorazioni",                              dot: "#C9B6E4",  temp: 30, spin: 600,  capF: 0.35 },
+  delicati_chiari: { name: "Delicati chiari",       sub: "Viscosa, pizzi, collant bianchi o chiari: lontani dai colori",     dot: "#EEE7F8",  temp: 30, spin: 600,  capF: 0.35 },
+  delicati:      { name: "Delicati scuri e colorati", sub: "Viscosa, pizzi, collant, decorazioni",                            dot: "#C9B6E4",  temp: 30, spin: 600,  capF: 0.35 },
   lana:          { name: "Lana e cashmere",         sub: "Cheratina: freddo, movimento minimo, niente enzimi",                dot: "#B89A7A",  temp: 30, spin: 600,  capF: 0.25 },
   mano:          { name: "Seta e lavaggio a mano",  sub: "Fibre proteiche fragili o etichetta con la mano",                   dot: "#E8D8B0",  temp: 30, spin: 400,  capF: 0.15 },
   piumini:       { name: "Piumini e imbottiti",     sub: "Piumini, cuscini, trapunte: spazio per gonfiarsi",                          dot: "#9FB4C9",  temp: 30, spin: 600,  capF: 0.3 },
@@ -130,9 +131,9 @@ const BASKETS = {
   pesante:       { name: "A parte: sporco pesante", sub: "Fango, grasso, peli, scarpe",                                       dot: "#8A6A4A",  temp: 40, spin: 1000, capF: 1 },
   nolav:         { name: "Non in lavatrice",        sub: "Tintoria o pulizia professionale",                                  dot: "#9AA3B2",  temp: 0,  spin: 0,    capF: 0 }
 };
-const BASKET_ORDER = ["bianchi", "chiari", "colorati", "scuri", "spugna_chiara", "spugna_col", "sport", "delicati", "lana", "mano", "piumini", "stinge", "pesante", "nolav"];
+const BASKET_ORDER = ["bianchi", "chiari", "colorati", "scuri", "spugna_chiara", "spugna_col", "sport", "delicati_chiari", "delicati", "lana", "mano", "piumini", "stinge", "pesante", "nolav"];
 // dal più delicato al più robusto: in un carico misto comanda il più delicato
-const DELICACY = ["mano", "lana", "piumini", "delicati", "sport", "stinge", "scuri", "colorati", "spugna_col", "chiari", "pesante", "spugna_chiara", "bianchi"];
+const DELICACY = ["mano", "lana", "piumini", "delicati", "delicati_chiari", "sport", "stinge", "scuri", "colorati", "spugna_col", "chiari", "pesante", "spugna_chiara", "bianchi"];
 
 // dose = dose base per carico pieno normale (≈ 4,5–5 kg), sporco normale, acqua media
 const PRODUCTS = {
@@ -189,6 +190,7 @@ const DETERGENT_PREF = {
   spugna_col:    ["liq_colori", "liq_univ", "eco", "capsule"],
   sport:         ["sport", "liq_univ", "eco", "liq_colori", "capsule"],
   delicati:      ["lana", "liq_colori", "eco", "liq_univ"],
+  delicati_chiari: ["lana", "liq_univ", "eco", "liq_colori"],
   lana:          ["lana", "shampoo"],
   mano:          ["lana", "shampoo"],
   piumini:       ["lana", "shampoo"],
