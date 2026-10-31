@@ -38,6 +38,8 @@ const DIALS = {
     list: ["ECO 40-60", "Cotone", "Cotone con prelavaggio", "Lava/Indossa", "Lana", "Delicati", "Express 20'", "Jeans/Scuri", "Capi outdoor", "Impermeabilizzare", "Scarico/Centrifuga", "Solo risciacquo/Inamidare"]
   }
 };
+// Durate dal libretto di una Miele con lo stesso pannello: indicative, cambiano con carico e opzioni
+const DIAL_DUR = { eco: "da 2 ore e 45 a 3 ore e 40, secondo il carico", cotone: "circa 2 ore e mezza", misti: "circa 2 ore", express: "20 minuti", lana: "circa 40 minuti", mano: "circa 40 minuti" };
 function dialProgram(pk, items, synth, T, settings) {
   const P = PROGRAMS[pk];
   if ((settings && settings.dial) !== "mio") return { name: P.name, note: "" };
@@ -630,6 +632,9 @@ function buildRecipe(items, keys, pantry, settings) {
   R.program = PROGRAMS[pk]; R.pk = pk;
   const dp = dialProgram(pk, items, synth, T, settings);
   R.progName = dp.name; R.progNote = dp.note;
+  const mine = settings.dial === "mio";
+  const durKey = !mine ? null : pk === "colorati" ? (synth ? "misti" : "cotone") : pk === "sport" ? (dp.name === "Lava/Indossa" ? "misti" : null) : pk === "piumini" ? null : pk;
+  R.progDur = (durKey && DIAL_DUR[durKey]) || PROGRAMS[pk].dur;
   if (pk === "eco" && T > 40 && !R.igiene) { /* eco gestisce 40-60 */ }
 
   // centrifuga
@@ -657,6 +662,10 @@ function buildRecipe(items, keys, pantry, settings) {
   else sWhy.push("Pochi giri: fibre fragili da bagnate, elastici e ferretti non reggerebbero centinaia di g.");
   const limiters = items.filter(it => itemSpin(it) <= R.spin && itemSpin(it) < BASKETS[gov].spin).map(it => lc(GARMENTS[it.g].name));
   if (limiters.length) sWhy.push(`Limitata da: ${[...new Set(limiters)].slice(0, 3).join(", ")}.`);
+  if (mine && R.spin < 700 && !["lana", "mano"].includes(pk)) {
+    sWhy.push("Sotto i 700 giri la tua lavatrice aggiunge da sola un risciacquo: i capi trattengono più acqua e più detersivo. Per questo il programma dura di più.");
+    R.progDur += ", più un risciacquo extra";
+  }
   R.spinWhy = sWhy;
   R.g = gForce(R.spin); R.moist = residualMoisture(R.spin);
 

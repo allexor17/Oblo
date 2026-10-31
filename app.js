@@ -566,7 +566,7 @@ function renderLavatrice() {
   h += `<section class="machine" aria-label="La lavatrice">
     <div class="m-top">
       ${drawerHTML(R)}
-      <div class="display" aria-live="polite"><span class="t" id="dispT">${R.T}°</span><span class="p">${R.progName}</span><span class="r" id="dispR">${R.spin} giri · ${R.program.dur}</span></div>
+      <div class="display" aria-live="polite"><span class="t" id="dispT">${R.T}°</span><span class="p">${R.progName}</span><span class="r" id="dispR">${R.spin} giri · ${R.progDur}</span></div>
     </div>
     <div class="porthole-wrap">${portholeHTML(items)}</div>
     <div class="phase" id="phase"><div class="ph-title">Pronta</div><p>${R.kg ? `${fmt1(R.kg)} kg di bucato, ${R.litres} litri d'acqua circa.` : ""} Avvia la simulazione per vedere cosa succede dentro il cestello, fase per fase.</p><div class="progress"><i id="phaseBar"></i></div></div>
@@ -584,7 +584,7 @@ function renderLavatrice() {
       <div><small>Temperatura</small><b>${R.T}°C</b></div>
       <div><small>Centrifuga</small><b>${R.spin}</b></div>
     </div>
-    <details class="why"><summary>Perché questo programma</summary><div class="why-body"><p>${R.program.why}</p>${R.expressWhyNot ? `<p><b>Perché non Express:</b> ${R.expressWhyNot}.</p>` : ""}${R.progNote ? `<p><b>Sul tuo pannello</b><br>${R.progNote} Durata indicativa: ${R.program.dur}.</p>` : (S.settings.dial === "mio" ? `<p>Durata indicativa: ${R.program.dur}.</p>` : (R.program.alt ? `<p>Se la tua lavatrice non ce l'ha: <b>${R.program.alt}</b>. Durata indicativa: ${R.program.dur}.</p>` : ""))}
+    <details class="why"><summary>Perché questo programma</summary><div class="why-body"><p>${R.program.why}</p>${R.expressWhyNot ? `<p><b>Perché non Express:</b> ${R.expressWhyNot}.</p>` : ""}${R.progNote ? `<p><b>Sul tuo pannello</b><br>${R.progNote} Durata indicativa: ${R.progDur}.</p>` : (S.settings.dial === "mio" ? `<p>Durata indicativa: ${R.progDur}.</p>` : (R.program.alt ? `<p>Se la tua lavatrice non ce l'ha: <b>${R.program.alt}</b>. Durata indicativa: ${R.progDur}.</p>` : ""))}
       <div><b class="small">Il cerchio di Sinner di questo programma</b><div class="sinner">${R.program.sinner.map((v, i) => `<div class="sr"><span>${SINNER_LABELS[i]}</span><span class="pips">${[1, 2, 3, 4, 5].map(n => `<i class="${n <= v ? "on" : ""}"></i>`).join("")}</span></div>`).join("")}</div></div>
       <p class="small">Quattro leve: chimica, temperatura, azione meccanica, tempo. Se una scende, le altre devono salire per lo stesso pulito. <button class="btn plain sm" type="button" data-act="card" data-id="sinner">Approfondisci</button></p></div></details>
     <details class="why"><summary>Perché ${R.T}°C</summary><div class="why-body">${R.tempWhy.map(t => `<p>${t}</p>`).join("")}
