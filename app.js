@@ -498,7 +498,8 @@ function renderDispensa() {
     h += ownedIds.map(id => {
       const P = PRODUCTS[id];
       const doseIn = P.dose && (P.cat === "Detersivi" || id === "ammorbidente") && id !== "capsule" ? `<div class="dose"><input class="num" type="number" inputmode="decimal" data-inp="dose" data-id="${id}" value="${doseOf(S.pantry, id)}" aria-label="Dose di ${P.name}"> ${P.unit}</div>` : "<span></span>";
-      return `<div class="prod"><span class="em" aria-hidden="true">${P.e}</span><div><div class="name">${P.name}</div><div class="chem">${P.chem}</div></div>${doseIn}
+      const oba = id === "polvere" ? `<label class="toggle prod-opt"><input type="checkbox" data-act="nooba" ${S.pantry.polvere && S.pantry.polvere.noOBA ? "checked" : ""}><span>Senza sbiancanti ottici<small>Guarda gli ingredienti: se non trovi «sbiancanti ottici» (o «optical brighteners»), spunta qui. Così Oblò te la propone anche per bianchi e pastelli insieme.</small></span></label>` : "";
+      return `<div class="prod"><span class="em" aria-hidden="true">${P.e}</span><div><div class="name">${P.name}</div><div class="chem">${P.chem}</div>${oba}</div>${doseIn}
         <div class="prod-actions"><span class="tiny">Sì: ${P.good}.${P.bad ? ` No: ${P.bad}.` : ""}</span></div>
         <div class="prod-actions"><button class="btn plain sm" type="button" data-act="unown" data-id="${id}">Rimuovi</button></div></div>`;
     }).join("");
@@ -1209,6 +1210,7 @@ document.addEventListener("change", e => {
   if (act === "quiz") { S.settings.quiz = el.checked; save(); render(); return; }
   if (act === "eco") { S.settings.eco = el.checked; save(); return; }
   if (act === "express") { S.settings.express = el.checked; save(); return; }
+  if (act === "nooba") { S.pantry.polvere = { ...(S.pantry.polvere || { have: true }), noOBA: el.checked }; save(); render(); return; }
   if (act === "d-flag" && D) { D.flags[el.dataset.v] = el.checked; renderAdd(); return; }
   if (act === "d-stain" && D) { D.flags.macchia = el.value; return; }
   if (inp === "fh") {

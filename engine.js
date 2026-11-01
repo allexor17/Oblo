@@ -317,7 +317,7 @@ function basketTone(k, its) {
   return its.map(it => t[colorGroup(it)]).reduce((a, b) => TONE_RANK[b] > TONE_RANK[a] ? b : a, "W");
 }
 const TONE_PAIRS = {
-  "W|L": ["ok",    "Capi bianchi e capi chiari stanno bene insieme a 40°C con un detersivo liquido: i pastelli non vogliono gli sbiancanti ottici della polvere."],
+  "W|L": ["ok",    "Capi bianchi e capi chiari stanno bene insieme a 40°C. L'unica attenzione è il detersivo: niente polvere con sbiancanti ottici, che cambiano la tinta dei pastelli."],
   "L|C": ["lieve", "Capi chiari e capi colorati: 30°C, detersivo per colorati e un acchiappacolore. A freddo il colorante diffonde poco fuori dalla fibra."],
   "C|D": ["lieve", "Capi colorati e capi scuri: 30°C, scuri al rovescio, un acchiappacolore."],
   "W|C": ["forte", "I capi bianchi prendono un po' del colorante libero e col tempo ingrigiscono: 30°C, detersivo per colorati, due acchiappacolore. Ogni tanto concedi ai bianchi un lavaggio da soli a 60°C."],
@@ -678,6 +678,10 @@ function buildRecipe(items, keys, pantry, settings) {
 
   // detersivo
   let pref = DETERGENT_PREF[gov] || DETERGENT_PREF.colorati;
+  // polvere senza sbiancanti ottici: con bianchi e pastelli insieme conviene, perché i bianchi hanno bisogno dell'ossigeno attivo
+  const noOBA = !!(pantry.polvere && pantry.polvere.noOBA);
+  const whitesWithPastels = gov === "chiari" && items.some(it => colorGroup(it) === "bianco");
+  if (noOBA && whitesWithPastels && owned(pantry, "polvere")) pref = ["polvere", ...pref.filter(id => id !== "polvere")];
   if (pk === "express") pref = [...pref.filter(id => id !== "polvere"), ...pref.filter(id => id === "polvere")];
   const det = pref.find(id => owned(pantry, id));
   const hardF = HARD[settings.hard].f, soilF = SOIL[soil].f, loadF = R.fill < 0.5 ? 0.75 : 1;
@@ -697,10 +701,12 @@ function buildRecipe(items, keys, pantry, settings) {
     why.push(`Base ${doseOf(pantry, det)} ${P.unit} per un carico pieno normale${det === "capsule" ? "" : `, × ${fmt(hardF, 2)} per l'acqua ${HARD[settings.hard].name.toLowerCase()}, × ${fmt(soilF, 2)} per lo sporco (${SOIL[soil].name.toLowerCase()}), × ${fmt(loadF, 2)} per il carico (${Math.round(R.fill * 100)}% del cestello)`}.`);
     if (det === "capsule") why.push("La capsula ha una dose fissa: non puoi adattarla a carico e durezza. Per i mezzi carichi un liquido dosabile spreca meno.");
     if (det !== pref[0]) why.push(`L'ideale sarebbe ${lc(PRODUCTS[pref[0]].name)}, che non hai in dispensa: ${DET_REASON[pref[0]] || ""}`);
-    else why.push(`Hai il prodotto giusto: ${DET_REASON[det] || ""}`);
+    else why.push(`Hai il prodotto giusto: ${det === "polvere" && noOBA ? "contiene ossigeno attivo, perfetto per bianchi e spugna chiara, e non ha sbiancanti ottici." : (DET_REASON[det] || "")}`);
+    if (det === "polvere" && noOBA && whitesWithPastels) why.push("La tua polvere non ha sbiancanti ottici, quindi non cambia la tinta dei pastelli. L'ossigeno attivo spegne il giallo dei bianchi, e i pastelli quasi sempre lo reggono: al primo lavaggio controlla comunque che non sbiadiscano.");
     if (pk === "express") why.push(det === "polvere" ? "Nell'Express il detersivo ha pochi minuti: sciogli la polvere in un bicchiere d'acqua tiepida, o meglio usa un liquido, che si scioglie subito e si risciacqua meglio." : "Nell'Express un liquido è la scelta giusta: si scioglie subito e in un ciclo corto si risciacqua bene.");
     if (det === "polvere" && T <= 30) why.push("A 30°C la polvere può non sciogliersi del tutto: sciogli la dose in un bicchiere d'acqua tiepida prima di versarla.");
-    if (det === "polvere" && ["chiari", "colorati", "spugna_col", "stinge"].includes(gov)) why.push("Attenzione: la polvere contiene sbiancanti ottici e ossigeno attivo, che possono alterare i colori. Se puoi, usa un liquido per colorati.");
+    if (det === "polvere" && ["chiari", "colorati", "spugna_col", "stinge"].includes(gov) && !(noOBA && whitesWithPastels))
+      why.push(noOBA ? "La tua polvere non ha sbiancanti ottici, ma contiene ossigeno attivo: lavaggio dopo lavaggio può sbiadire i colori. Se puoi, per i colori usa un liquido." : "Attenzione: la polvere contiene sbiancanti ottici e ossigeno attivo, che possono alterare i colori. Se puoi, usa un liquido per colorati.");
     R.detergent = { id: det, amount, unit, where, why };
     if (where === "II") R.drawer.II.push({ id: det, amount, unit });
     else R.drum.push({ id: det, amount, unit, note: "sul fondo del cestello, prima dei capi" });
